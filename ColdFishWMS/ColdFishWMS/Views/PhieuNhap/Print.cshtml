@@ -1,0 +1,182 @@
+@model ColdFishWMS.Models.Entities.PhieuNhap
+@{
+    Layout = null;
+}
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="utf-8" />
+    <title>In Phiếu Nhập Kho - @Model.MaPhieuNhap</title>
+    <style>
+        body { font-family: "Times New Roman", Times, serif; font-size: 13pt; line-height: 1.3; margin: 0; padding: 20px; }
+        .container { width: 210mm; margin: 0 auto; padding: 10px; background: white; }
+        
+        .header { display: flex; justify-content: space-between; margin-bottom: 20px; }
+        .company-info { font-weight: bold; width: 60%; font-size: 11pt; }
+        .meta-info { text-align: center; width: 40%; font-size: 11pt; font-weight: bold; }
+        .meta-info span { display: block; font-weight: normal; font-style: italic; font-size: 10pt; }
+
+        .title { text-align: center; margin: 20px 0; }
+        .title h1 { margin: 0; font-size: 16pt; font-weight: bold; text-transform: uppercase; }
+        .title p { margin: 5px 0 0; font-style: italic; }
+
+        .info-section { margin-bottom: 20px; }
+        .info-row { display: flex; margin-bottom: 5px; }
+        .info-label { width: 150px; }
+        .info-content { flex: 1; border-bottom: 1px dotted #999; }
+
+        table { width: 100%; border-collapse: collapse; margin-bottom: 20px; font-size: 12pt; }
+        table, th, td { border: 1px solid black; }
+        th { background-color: #f0f0f0; padding: 5px; text-align: center; font-weight: bold; }
+        td { padding: 5px; vertical-align: middle; }
+        .text-center { text-align: center; }
+        .text-end { text-align: right; }
+        .text-bold { font-weight: bold; }
+
+        .footer { display: flex; justify-content: space-between; margin-top: 30px; text-align: center; }
+        .signature-block { width: 24%; }
+        .signature-block h4 { margin: 5px 0; font-size: 12pt; font-weight: bold; }
+        .signature-block p { margin: 0; font-size: 11pt; font-style: italic; }
+        .sign-space { height: 100px; }
+
+        @@media print {
+            body { padding: 0; }
+            .container { width: 100%; border: none; }
+            @@page { margin: 10mm; size: A4; }
+            .no-print { display: none; }
+        }
+    </style>
+</head>
+<body onload="window.print()">
+    <div class="no-print" style="position: fixed; top: 10px; right: 10px;">
+        <button onclick="window.print()" style="padding: 10px 20px; background: #0d6efd; color: white; border: none; cursor: pointer;">In Phiếu</button>
+        <button onclick="window.history.back()" style="padding: 10px 20px; background: #6c757d; color: white; border: none; cursor: pointer;">Quay lại</button>
+    </div>
+
+    <div class="container">
+        <div class="header">
+            <div class="company-info">
+                Đơn vị: CÔNG TY TNHH COLDFISH WMS<br>
+                Địa chỉ: 123 Đường Số 1, TP.HCM
+            </div>
+            <div class="meta-info">
+                Mẫu số 01 - VT<br>
+                <span>(Ban hành theo Thông tư số 200/2014/TT-BTC<br>ngày 22/12/2014 của Bộ Tài chính)</span>
+            </div>
+        </div>
+
+        <div class="title">
+            <h1>PHIẾU NHẬP KHO</h1>
+            <p>Ngày @Model.NgayNhap.Day tháng @Model.NgayNhap.Month năm @Model.NgayNhap.Year</p>
+            <p>Số: @Model.MaPhieuNhap</p>
+        </div>
+
+        <div class="info-section">
+            <div class="info-row">
+                <span class="info-label">- Họ và tên người giao:</span>
+                <span class="info-content">@(Model.NhaCungCap?.TenNhaCungCap ?? "...........................................")</span>
+            </div>
+            <div class="info-row">
+                <span class="info-label">- Theo hóa đơn số:</span>
+                <span class="info-content">.......... ngày ..... tháng ..... năm ........... của ...........................................</span>
+            </div>
+            <div class="info-row">
+                <span class="info-label">- Nhập tại kho:</span>
+                <span class="info-content">Kho Lạnh - Địa điểm: Hồ Chí Minh</span>
+            </div>
+            <div class="info-row">
+                <span class="info-label">- Diễn giải:</span>
+                <span class="info-content">@(Model.GhiChu ?? "Nhập hàng từ nhà cung cấp")</span>
+            </div>
+        </div>
+
+        <table>
+            <thead>
+                <tr>
+                    <th rowspan="2" style="width: 5%">STT</th>
+                    <th rowspan="2">Tên, nhãn hiệu, quy cách, phẩm chất vật tư, dụng cụ, sản phẩm, hàng hóa</th>
+                    <th rowspan="2" style="width: 10%">Mã số</th>
+                    <th rowspan="2" style="width: 8%">ĐVT</th>
+                    <th colspan="2">Số lượng</th>
+                    <th rowspan="2" style="width: 12%">Đơn giá</th>
+                    <th rowspan="2" style="width: 15%">Thành tiền</th>
+                </tr>
+                <tr>
+                    <th style="width: 10%">Theo chứng từ</th>
+                    <th style="width: 10%">Thực nhập</th>
+                </tr>
+            </thead>
+            <tbody>
+                @if (Model.ChiTietPhieuNhaps != null)
+                {
+                    int stt = 1;
+                    foreach (var item in Model.ChiTietPhieuNhaps)
+                    {
+                        <tr>
+                            <td class="text-center">@stt</td>
+                            <td>@(item.SanPham?.TenSanPham ?? item.MaSanPham)</td>
+                            <td class="text-center">@item.MaSanPham</td>
+                            <td class="text-center">@(item.SanPham?.DonViTinh?.TenDonViTinh ?? "Kg")</td>
+                            <td class="text-end">@item.SoLuong.ToString("N0")</td>
+                            <td class="text-end">@item.SoLuong.ToString("N0")</td>
+                            <td class="text-end">@item.DonGia.ToString("N0")</td>
+                            <td class="text-end">@((item.SoLuong * item.DonGia).ToString("N0"))</td>
+                        </tr>
+                        stt++;
+                    }
+                    // Fill empty rows if needed for A4 look
+                    for(int i = 0; i < Math.Max(0, 5 - Model.ChiTietPhieuNhaps.Count); i++)
+                    {
+                         <tr>
+                            <td>&nbsp;</td>
+                            <td></td>
+                            <td></td>
+                            <td></td>
+                            <td></td>
+                            <td></td>
+                            <td></td>
+                            <td></td>
+                        </tr>
+                    }
+                }
+                <tr>
+                    <td colspan="4" class="text-center text-bold">Cộng</td>
+                    <td class="text-end text-bold">@Model.ChiTietPhieuNhaps?.Sum(x => x.SoLuong).ToString("N0")</td>
+                    <td class="text-end text-bold">@Model.ChiTietPhieuNhaps?.Sum(x => x.SoLuong).ToString("N0")</td>
+                    <td></td>
+                    <td class="text-end text-bold">@Model.TongTien.ToString("N0")</td>
+                </tr>
+            </tbody>
+        </table>
+        
+        <div style="margin-bottom: 20px;">
+            - Tổng số tiền (viết bằng chữ): .......................................................................................................................................................
+            <br>- Số chứng từ gốc kèm theo: .......................................................................................................................................................
+        </div>
+
+        <div class="footer">
+            <div class="signature-block">
+                <h4>Người lập phiếu</h4>
+                <p>(Ký, họ tên)</p>
+                <div class="sign-space"></div>
+            </div>
+            <div class="signature-block">
+                <h4>Người giao hàng</h4>
+                <p>(Ký, họ tên)</p>
+                <div class="sign-space"></div>
+            </div>
+            <div class="signature-block">
+                <h4>Thủ kho</h4>
+                <p>(Ký, họ tên)</p>
+                <div class="sign-space"></div>
+            </div>
+            <div class="signature-block">
+                <h4>Kế toán trưởng</h4>
+                <p>(Hoặc bộ phận có nhu cầu nhập)</p>
+                <p>(Ký, họ tên)</p>
+                <div class="sign-space"></div>
+            </div>
+        </div>
+    </div>
+</body>
+</html>

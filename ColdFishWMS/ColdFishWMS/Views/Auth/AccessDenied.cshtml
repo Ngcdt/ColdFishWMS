@@ -1,0 +1,29 @@
+@{
+    ViewData["Title"] = "Không có quyền truy cập";
+    Layout = "_Layout";
+}
+
+<div class="container mt-5">
+    <div class="row justify-content-center">
+        <div class="col-md-6 text-center">
+            <div class="card border-0 shadow-sm">
+                <div class="card-body p-5">
+                    <i class="fas fa-lock fa-4x text-danger mb-4"></i>
+                    <h2 class="fw-bold text-danger mb-3">Truy cập bị từ chối</h2>
+                    <p class="text-muted mb-4">
+                        Bạn không có quyền truy cập vào chức năng này. <br>
+                        Vui lòng liên hệ quản trị viên nếu bạn cho rằng đây là lỗi.
+                    </p>
+                    <div class="d-flex justify-content-center gap-3">
+                        <a href="javascript:history.back()" class="btn btn-outline-secondary">
+                            <i class="fas fa-arrow-left me-2"></i> Quay lại
+                        </a>
+                        <a asp-controller="Dashboard" asp-action="Index" class="btn btn-primary">
+                            <i class="fas fa-home me-2"></i> Về trang chủ
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

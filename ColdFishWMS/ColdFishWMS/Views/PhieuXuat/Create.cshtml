@@ -1,0 +1,209 @@
+@model ColdFishWMS.Models.Entities.PhieuXuat
+@{
+    ViewData["Title"] = "Tạo phiếu xuất - FEFO";
+}
+
+<div class="mb-3">
+    <a asp-controller="Dashboard" asp-action="Index" class="text-decoration-none text-muted">
+        <i class="fas fa-arrow-left me-1"></i> Quay lại Bảng điều khiển
+    </a>
+</div>
+
+<h2><i class="fas fa-file-export"></i> Tạo phiếu xuất (FEFO)</h2>
+<hr />
+
+<form asp-action="Create" method="post" id="formPhieuXuat">
+    <div class="row">
+        <div class="col-md-8">
+            <div class="card mb-3">
+                <div class="card-header bg-primary text-white">
+                    <h5 class="mb-0">Thông tin phiếu xuất</h5>
+                </div>
+                <div class="card-body">
+                    <div class="row">
+                        <div class="col-md-6 mb-3">
+                            <label asp-for="NgayXuat" class="form-label">Ngày xuất *</label>
+                            <input asp-for="NgayXuat" class="form-control" type="date" />
+                        </div>
+                        
+                        <div class="col-md-6 mb-3">
+                            <label asp-for="MaKhachHang" class="form-label">Khách hàng *</label>
+                            <select asp-for="MaKhachHang" class="form-select">
+                                <option value="">-- Chọn khách hàng --</option>
+                                @foreach (var kh in ViewBag.KhachHangs as List<ColdFishWMS.Models.Entities.KhachHang>)
+                                {
+                                    <option value="@kh.MaKhachHang">@kh.TenKhachHang</option>
+                                }
+                            </select>
+                        </div>
+                    </div>
+                    
+                    <div class="mb-3">
+                        <label asp-for="GhiChu" class="form-label">Ghi chú</label>
+                        <textarea asp-for="GhiChu" class="form-control" rows="2"></textarea>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="card mb-3">
+                <div class="card-header bg-warning d-flex justify-content-between align-items-center">
+                    <h5 class="mb-0">Chọn sản phẩm xuất</h5>
+                    <button type="button" class="btn btn-light btn-sm" onclick="themSanPhamXuat()">
+                        <i class="fas fa-plus"></i> Thêm sản phẩm
+                    </button>
+                    <div class="ms-3">
+                        Total: <strong id="tongTienFooter" class="text-white fs-5">0 VNĐ</strong>
+                    </div>
+                </div>
+                <div class="card-body">
+                    <table class="table table-bordered" id="tableSanPhamXuat">
+                        <thead>
+                            <tr>
+                                <th style="width: 35%">Sản phẩm</th>
+                                <th style="width: 15%">Số lượng</th>
+                                <th style="width: 20%">Đơn giá xuất</th>
+                                <th style="width: 15%">Đề xuất FEFO</th>
+                                <th style="width: 5%"></th>
+                            </tr>
+                        </thead>
+                        <tbody></tbody>
+                    </table>
+                </div>
+            </div>
+            
+            <div class="card">
+                <div class="card-header bg-success text-white">
+                    <h5 class="mb-0"><i class="fas fa-clock"></i> Lô hàng được đề xuất xuất (FEFO)</h5>
+                </div>
+                <div class="card-body" id="deXuatFEFO">
+                    <p class="text-muted">Chọn sản phẩm và nhập số lượng để xem đề xuất FEFO...</p>
+                </div>
+            </div>
+            
+            <div class="mt-3">
+                <button type="submit" class="btn btn-primary btn-lg">
+                    <i class="fas fa-save"></i> Tạo phiếu xuất
+                </button>
+                <a asp-action="Index" class="btn btn-secondary btn-lg">
+                    <i class="fas fa-times"></i> Hủy
+                </a>
+            </div>
+        </div>
+    </div>
+</form>
+
+@section Scripts {
+    <script>
+        let spIndex = 0;
+        const sanPhams = @Html.Raw(Json.Serialize(((List<ColdFishWMS.Models.Entities.SanPham>)ViewBag.SanPhams).Select(s => new { maSanPham = s.MaSanPham, tenSanPham = s.TenSanPham, gia = s.GiaNhapMacDinh })));
+        
+        function themSanPhamXuat() {
+            const html = `
+                <tr>
+                    <td>
+                        <select name="danhSachXuat[${spIndex}].MaSanPham" class="form-select maSanPham" onchange="capNhatGia(this); xemDeXuatFEFO()" required>
+                            <option value="">-- Chọn sản phẩm --</option>
+                            ${sanPhams.map(sp => `<option value="${sp.maSanPham}" data-gia="${sp.gia}">${sp.tenSanPham}</option>`).join('')}
+                        </select>
+                    </td>
+                    <td>
+                        <input type="number" name="danhSachXuat[${spIndex}].SoLuong" class="form-control soLuongXuat" step="0.01" onchange="tinhTongTien(); xemDeXuatFEFO()" required />
+                    </td>
+                    <td>
+                        <input type="number" name="danhSachXuat[${spIndex}].DonGia" class="form-control donGiaXuat" step="1" onchange="tinhTongTien()" required />
+                    </td>
+                    <td>
+                        <button type="button" class="btn btn-info btn-sm" onclick="xemDeXuatFEFO()">
+                            <i class="fas fa-eye"></i> Xem đề xuất
+                        </button>
+                    </td>
+                    <td>
+                        <button type="button" class="btn btn-danger btn-sm" onclick="xoaDong(this)">
+                            <i class="fas fa-times"></i>
+                        </button>
+                    </td>
+                </tr>
+            `;
+            $('#tableSanPhamXuat tbody').append(html);
+            spIndex++;
+        }
+
+        function capNhatGia(select) {
+            const gia = $(select).find(':selected').data('gia') || 0;
+            $(select).closest('tr').find('.donGiaXuat').val(gia);
+            tinhTongTien();
+        }
+
+        function xoaDong(btn) {
+            $(btn).closest('tr').remove();
+            tinhTongTien();
+            xemDeXuatFEFO();
+        }
+
+        function tinhTongTien() {
+            let tong = 0;
+            $('#tableSanPhamXuat tbody tr').each(function() {
+                const soLuong = $(this).find('.soLuongXuat')[0].valueAsNumber || 0;
+                const donGia = $(this).find('.donGiaXuat')[0].valueAsNumber || 0;
+                tong += (soLuong * donGia);
+            });
+            $('#tongTienFooter').text(tong.toLocaleString('vi-VN') + ' VNĐ');
+        }
+        
+        async function xemDeXuatFEFO() {
+            const deXuatHTML = [];
+            
+            for (const row of $('#tableSanPhamXuat tbody tr')) {
+                const maSanPham = $(row).find('.maSanPham').val();
+                const soLuong = $(row).find('.soLuongXuat').val();
+                
+                if (maSanPham && soLuong > 0) {
+                    const response = await fetch(`/PhieuXuat/GetDeXuatFEFO?maSanPham=${maSanPham}&soLuong=${soLuong}`);
+                    const data = await response.json();
+                    
+                    if (data.length > 0) {
+                        const tenSP = sanPhams.find(sp => sp.maSanPham == maSanPham)?.tenSanPham;
+                        deXuatHTML.push(`
+                            <div class="mb-3">
+                                <h6><strong>${tenSP}</strong> - Cần xuất: ${soLuong}</h6>
+                                <table class="table table-sm table-bordered">
+                                    <thead>
+                                        <tr>
+                                            <th>Số lô</th>
+                                            <th>HSD</th>
+                                            <th>Còn lại (ngày)</th>
+                                            <th>Tồn kho</th>
+                                            <th>Vị trí</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        ${data.map(lo => `
+                                            <tr class="${lo.soNgayConLai <= 7 ? 'table-danger' : lo.soNgayConLai <= 15 ? 'table-warning' : ''}">
+                                                <td>${lo.maLoHang}</td>
+                                                <td>${new Date(lo.hanSuDung).toLocaleDateString('vi-VN')}</td>
+                                                <td><strong>${lo.soNgayConLai}</strong> ngày</td>
+                                                <td>${lo.soLuongTon}</td>
+                                                <td>${lo.viTri || 'N/A'}</td>
+                                            </tr>
+                                        `).join('')}
+                                    </tbody>
+                                </table>
+                            </div>
+                        `);
+                    }
+                }
+            }
+            
+            if (deXuatHTML.length > 0) {
+                $('#deXuatFEFO').html(deXuatHTML.join(''));
+            } else {
+                $('#deXuatFEFO').html('<p class="text-muted">Không có lô hàng nào đủ điều kiện xuất.</p>');
+            }
+        }
+        
+        $(document).ready(function() {
+            themSanPhamXuat();
+        });
+    </script>
+}
+

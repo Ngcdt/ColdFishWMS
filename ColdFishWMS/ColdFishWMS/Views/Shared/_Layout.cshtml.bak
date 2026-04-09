@@ -1,0 +1,388 @@
+﻿<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>@ViewData["Title"] - ColdFishWMS</title>
+
+    <link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.min.css" />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" />
+
+    <link rel="stylesheet" href="~/css/site.css" />
+
+    <style>
+        body {
+            background: #f5f7fb;
+            font-family: 'Segoe UI', sans-serif;
+            overflow-x: hidden; 
+        }
+
+        /* Topbar - Now Fixed & Full Width */
+        .topbar {
+            height: 64px;
+            background: white;
+            border-bottom: 1px solid #e5e7eb;
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            z-index: 1002;
+            padding: 0 20px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.02);
+        }
+
+        /* Sidebar Styling */
+        #sidebarWrapper {
+            width: 260px;
+            position: fixed;
+            top: 64px; /* Below Topbar */
+            left: 0;
+            height: calc(100vh - 64px);
+            background: #fff;
+            color: #2c3e50;
+            transition: margin 0.3s ease-in-out;
+            z-index: 1000;
+            box-shadow: 4px 0 10px rgba(0,0,0,0.05);
+            border-right: 1px solid #e3e6f0;
+            overflow-y: auto;
+        }
+
+        #sidebarWrapper .nav-link {
+            color: #5a5c69;
+            padding: 12px 20px;
+            border-radius: 10px;
+            margin: 4px 10px;
+            transition: all 0.2s ease;
+            display: flex;
+            align-items: center;
+            font-weight: 500;
+        }
+
+        #sidebarWrapper .nav-link i {
+            width: 25px;
+            text-align: center;
+            margin-right: 10px;
+            color: #b7b9cc; 
+            transition: color 0.2s;
+        }
+
+        #sidebarWrapper .nav-link:hover, 
+        #sidebarWrapper .nav-link.active {
+            color: #fff;
+            background: #4e73df;
+            transform: translateX(5px);
+            box-shadow: 0 4px 8px rgba(78, 115, 223, 0.3);
+        }
+
+        #sidebarWrapper .nav-link:hover i,
+        #sidebarWrapper .nav-link.active i {
+            color: #fff;
+        }
+
+        /* Brand in Topbar now */
+        .brand-section {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            font-size: 1.2rem;
+            font-weight: 800;
+            letter-spacing: 1px;
+            color: #4e73df;
+        }
+        
+        .brand-logo {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            text-transform: uppercase;
+        }
+
+        .content {
+            margin-left: 260px;
+            padding: 30px;
+            margin-top: 64px; /* Push down */
+            transition: margin 0.3s ease-in-out;
+        }
+
+        .footer {
+            margin-left: 260px;
+            transition: margin 0.3s ease-in-out;
+            border-top: 1px solid #e3e6f0;
+            background: #fff;
+        }
+
+        /* Toggled State */
+        body.toggled #sidebarWrapper {
+            margin-left: -260px;
+        }
+
+        body.toggled .content,
+        body.toggled .footer {
+            margin-left: 0;
+        }
+    </style>
+</head>
+
+<body>
+
+    <!-- Sidebar -->
+    <!-- Sidebar -->
+    <div id="sidebarWrapper">
+        <div class="pt-3"></div>
+        
+        <div class="px-2"> <!-- Container for list -->
+        <ul class="nav flex-column">
+
+            <!-- Dashboard -->
+            <li class="nav-item mb-2">
+                <a class="nav-link" asp-controller="Dashboard" asp-action="Index">
+                    <i class="fa-solid fa-gauge"></i> Bảng điều khiển
+                </a>
+            </li>
+
+            <!-- Danh mục (Chỉ Admin hoặc Staff) -->
+            @if (User.IsInRole(AppRoles.QuanLyKho) || User.IsInRole(AppRoles.NhanVienKho) || User.IsInRole(AppRoles.KeToanKho))
+            {
+                <li class="nav-item mb-2">
+                    <a class="nav-link" data-bs-toggle="collapse" href="#menuDanhMuc">
+                        <i class="fa-solid fa-boxes-stacked"></i> Danh mục
+                    </a>
+                    <ul class="collapse ms-3" id="menuDanhMuc">
+                        @if (User.IsInRole(AppRoles.QuanLyKho) || User.IsInRole(AppRoles.NhanVienKho) || User.IsInRole(AppRoles.KeToanKho))
+                        {
+                            <li><a class="nav-link" asp-controller="SanPham" asp-action="Index">Sản phẩm</a></li>
+                            <li><a class="nav-link" asp-controller="LoaiSanPham" asp-action="Index">Loại sản phẩm</a></li>
+                        }
+                        
+                        @if (User.IsInRole(AppRoles.QuanLyKho) || User.IsInRole(AppRoles.KeToanKho))
+                        {
+                            <li><a class="nav-link" asp-controller="DonViTinh" asp-action="Index">Đơn vị tính</a></li>
+                        }
+                        
+                        @if (User.IsInRole(AppRoles.QuanLyKho))
+                        {
+                            <li><a class="nav-link" asp-controller="NhaCungCap" asp-action="Index">Nhà cung cấp</a></li>
+                            <li><a class="nav-link" asp-controller="KhachHang" asp-action="Index">Khách hàng</a></li>
+                        }
+                        
+                        @if (User.IsInRole(AppRoles.QuanLyKho) || User.IsInRole(AppRoles.NhanVienKho) || User.IsInRole(AppRoles.KeToanKho))
+                        {
+                            <li><a class="nav-link" asp-controller="ViTriKho" asp-action="Index">Vị trí kho</a></li>
+                        }
+                    </ul>
+                </li>
+            }
+
+            <!-- Vận hành Kho -->
+            <li class="nav-item mb-2">
+                <a class="nav-link" data-bs-toggle="collapse" href="#menuVanHanh">
+                    <i class="fa-solid fa-warehouse"></i> Vận hành kho
+                </a>
+                <ul class="collapse ms-3 show" id="menuVanHanh">
+                     <li class="nav-item">
+                        <a class="nav-link" asp-controller="PhieuNhap" asp-action="Index">
+                            <i class="fa-solid fa-box-open"></i> Nhập kho
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" asp-controller="PhieuXuat" asp-action="Index">
+                            <i class="fa-solid fa-shipping-fast"></i> Xuất kho
+                        </a>
+                    </li>
+                     <li class="nav-item">
+                        <a class="nav-link" asp-controller="TonKho" asp-action="Index">
+                            <i class="fa-solid fa-clipboard-list"></i> Tra cứu tồn
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" asp-controller="Kho" asp-action="Index">
+                            <i class="fa-solid fa-layer-group"></i> Tổng quan kho
+                        </a>
+                    </li>
+                </ul>
+            </li>
+
+            <!-- Báo cáo (Admin, Accountant) -->
+            @if (User.IsInRole(AppRoles.QuanLyKho) || User.IsInRole(AppRoles.KeToanKho))
+            {
+                <li class="nav-item mb-2">
+                    <a class="nav-link" asp-controller="BaoCao" asp-action="Index">
+                        <i class="fa-solid fa-chart-line"></i> Báo cáo
+                    </a>
+                </li>
+            }
+
+            <!-- Cảnh báo & Rủi ro (Tất cả) -->
+            <li class="nav-item mb-2">
+                <a class="nav-link" asp-controller="CanhBao" asp-action="Index">
+                    <i class="fa-solid fa-triangle-exclamation"></i> Cảnh báo & Rủi ro
+                </a>
+            </li>
+
+            <!-- Người dùng & Hệ thống (Admin/Manager Only) -->
+            @if (User.IsInRole(ColdFishWMS.Models.AppRoles.QuanLyKho))
+            {
+                <div class="sb-sidenav-menu-heading pt-3 text-uppercase text-muted fw-bold small">Quản trị</div>
+                <a class="nav-link text-white-50 hover-text-white" asp-controller="NguoiDung" asp-action="Index">
+                    <div class="sb-nav-link-icon text-muted"><i class="fas fa-users"></i></div>
+                    Người dùng
+                </a>
+                <a class="nav-link text-white-50 hover-text-white" asp-controller="SystemLog" asp-action="Index">
+                    <div class="sb-nav-link-icon text-muted"><i class="fas fa-history"></i></div>
+                    Nhật ký hệ thống
+                </a>
+            }
+
+
+
+        </ul>
+        </div>
+    </div>
+
+    <!-- Topbar -->
+    <div class="topbar">
+        <!-- Brand & Toggle -->
+        <div class="brand-section">
+            <div class="brand-logo" id="sidebarToggle" style="cursor: pointer;">
+                <i class="fas fa-snowflake text-primary"></i>
+                <span>Cold Fish WMS</span>
+            </div>
+        </div>
+
+        <div class="text-muted ms-3 me-auto">
+            @DateTime.Now.ToString("dddd, dd/MM/yyyy - HH:mm")
+        </div>
+
+        <div class="dropdown">
+            <a class="nav-link dropdown-toggle d-flex align-items-center" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                <div class="text-end me-2 d-none d-lg-block">
+                    <span class="d-block small fw-bold text-dark">@User.FindFirst("HoTen")?.Value</span>
+                     <span class="d-block small text-muted">@User.FindFirst("Role")?.Value</span>
+                </div>
+                <div class="bg-primary text-white rounded-circle d-flex align-items-center justify-content-center shadow-sm" style="width: 40px; height: 40px;">
+                     <i class="fas fa-user"></i>
+                </div>
+            </a>
+            <ul class="dropdown-menu dropdown-menu-end shadow border-0 mt-2">
+                <li><h6 class="dropdown-header text-uppercase small font-weight-bold">Tài khoản</h6></li>
+                <li>
+                    <a class="dropdown-item" asp-controller="Profile" asp-action="Index">
+                        <i class="fas fa-user fa-sm fa-fw me-2 text-gray-400"></i> Hồ sơ cá nhân
+                    </a>
+                </li>
+                <li><hr class="dropdown-divider"></li>
+                <li>
+                     <form asp-controller="Auth" asp-action="Logout" method="post" class="d-inline">
+                         <button type="submit" class="dropdown-item text-danger">
+                            <i class="fas fa-sign-out-alt fa-sm fa-fw me-2"></i> Đăng xuất
+                         </button>
+                     </form>
+                </li>
+            </ul>
+        </div>
+    </div>
+
+    <!-- Content -->
+    <div class="content">
+        @RenderBody()
+    </div>
+
+    <!-- Footer -->
+    <!-- Footer -->
+    <footer class="footer text-muted p-3">
+        &copy; 2025 - ColdFishWMS
+    </footer>
+
+    <!-- Global Toast -->
+    <div class="position-fixed top-0 end-0 p-3" style="z-index: 1100">
+        <div id="globalToast" class="toast align-items-center text-white border-0 shadow-lg" role="alert" aria-live="assertive" aria-atomic="true">
+            <div class="d-flex">
+                <div class="toast-body fw-bold" id="globalToastMessage"></div>
+                <button type="button" class="btn-close btn-close-white me-2 m-auto" data-bs-dismiss="toast" aria-label="Close"></button>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.7.0/jquery.min.js"></script>
+    <script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
+
+    @if (TempData["Success"] != null || TempData["Error"] != null)
+    {
+        <script>
+            document.addEventListener("DOMContentLoaded", function() {
+                var toastEl = document.getElementById('globalToast');
+                var toastBody = document.getElementById('globalToastMessage');
+                // Ensure bootstrap is available
+                if (typeof bootstrap !== 'undefined') {
+                    var bsToast = new bootstrap.Toast(toastEl, { delay: 3000 });
+
+                    @if (TempData["Success"] != null)
+                    {
+                        <text>
+                        toastEl.classList.add('bg-success');
+                        toastBody.innerHTML = '<i class="fas fa-check-circle me-2"></i> @Html.Raw(TempData["Success"])';
+                        bsToast.show();
+                        </text>
+                    }
+                    else if (TempData["Error"] != null)
+                    {
+                        <text>
+                        toastEl.classList.add('bg-danger');
+                        toastBody.innerHTML = '<i class="fas fa-exclamation-triangle me-2"></i> @Html.Raw(TempData["Error"])';
+                        bsToast.show();
+                        </text>
+                    }
+                }
+            });
+        </script>
+    }
+    <script>
+        document.addEventListener("DOMContentLoaded", function () {
+            var toggleBtn = document.getElementById('sidebarToggle');
+            if (toggleBtn) {
+                toggleBtn.addEventListener('click', function (e) {
+                    e.preventDefault();
+                    document.body.classList.toggle('toggled');
+                });
+            }
+
+            // Auto-activate Sidebar links based on URL
+            var currentPath = window.location.pathname;
+            var sidebarLinks = document.querySelectorAll('#sidebarWrapper .nav-link');
+            
+            // Sort by length desc to match specific routes first (e.g. /PhieuNhap/Create vs /PhieuNhap)
+            // convert nodelist to array
+            var linksArray = Array.from(sidebarLinks);
+            
+            // Find best match
+            var activeLink = linksArray.find(function(link) {
+                var href = link.getAttribute('href');
+                if (!href || href === '#') return false;
+                if (href === '/' && currentPath === '/') return true;
+                if (href !== '/' && currentPath.startsWith(href)) return true;
+                return false;
+            });
+
+            if (activeLink) {
+                activeLink.classList.add('active');
+                
+                // Expand parent menu
+                var parentCollapse = activeLink.closest('.collapse');
+                if (parentCollapse) {
+                    parentCollapse.classList.add('show');
+                    // Also highlight the parent category
+                    var parentTrigger = document.querySelector('a[href="#' + parentCollapse.id + '"]');
+                    if (parentTrigger) {
+                        parentTrigger.classList.add('fw-bold'); 
+                        parentTrigger.style.color = '#4e73df'; // Active color
+                    }
+                }
+            }
+        });
+    </script>
+    @await RenderSectionAsync("Scripts", required: false)
+</body>
+</html>

@@ -1,0 +1,10 @@
+{
+  "MinStockThreshold": 10,
+  "ExpiryWarningDays": 8,
+  "ExpiryDangerDays": 3,
+  "ExportEfficiencyThreshold": 80,
+  "BatchTurnoverCycle": 30,
+  "MaxTemperature": -18,
+  "MinTemperature": -25,
+  "WarehouseOccupancyThreshold": 85
+}

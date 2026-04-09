@@ -1,0 +1,107 @@
+@model IEnumerable<ColdFishWMS.Models.Entities.ViTriKho>
+@{
+    ViewData["Title"] = "Quản lý vị trí kho";
+}
+
+<div class="container-fluid">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <div>
+             <nav aria-label="breadcrumb">
+                <ol class="breadcrumb mb-1 small bg-transparent p-0">
+                    <li class="breadcrumb-item"><a asp-controller="Dashboard" asp-action="Index" class="text-decoration-none"><i class="fas fa-home"></i></a></li>
+                    <li class="breadcrumb-item active" aria-current="page">Quản lý vị trí kho</li>
+                </ol>
+            </nav>
+            <h2 class="fw-bold text-dark mb-0">Quản lý vị trí kho</h2>
+             <p class="text-muted small mb-0">Thiết lập và quản lý sơ đồ kho hàng</p>
+        </div>
+         <div class="d-flex gap-2">
+            @if (User.IsInRole(ColdFishWMS.Models.AppRoles.QuanLyKho))
+            {
+                <a asp-action="Create" class="btn btn-primary shadow-sm">
+                    <i class="fas fa-plus me-2"></i> Thêm mới
+                </a>
+            }
+        </div>
+    </div>
+
+    <div class="card shadow-sm border-0">
+        <div class="card-body p-0">
+            <div class="table-responsive">
+                <table class="table table-hover align-middle mb-0">
+                    <thead class="bg-light text-muted small text-uppercase">
+                        <tr>
+                            <th class="ps-4">Mã vị trí</th>
+                            <th>Tên vị trí</th>
+                            <th>Khu / Kệ / Tầng</th>
+                            <th>Trạng thái</th>
+                            <th>SL Lô hàng</th>
+                            @if (User.IsInRole(ColdFishWMS.Models.AppRoles.QuanLyKho))
+                            {
+                                <th class="text-end pe-4">Thao tác</th>
+                            }
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @if (Model != null && Model.Any())
+                        {
+                            foreach (var item in Model)
+                            {
+                                <tr>
+                                    <td class="ps-4 fw-bold text-primary">@item.MaViTri</td>
+                                    <td>@item.TenViTri</td>
+                                    <td>
+                                        <span class="badge bg-light text-dark border me-1">@item.Khu</span>
+                                        <span class="badge bg-light text-dark border me-1">@item.Ke</span>
+                                        <span class="badge bg-light text-dark border">@item.Tang</span>
+                                    </td>
+                                    <td>
+                                        @if (item.TrangThaiTrong)
+                                        {
+                                            <span class="badge bg-success bg-opacity-10 text-success rounded-pill px-3">Trống</span>
+                                        }
+                                        else
+                                        {
+                                            <span class="badge bg-warning bg-opacity-10 text-warning rounded-pill px-3">Đã có hàng</span>
+                                        }
+                                    </td>
+                                    <td>
+                                        <span class="fw-bold">@(item.LoHangs?.Count ?? 0)</span> lô
+                                    </td>
+                                    @if (User.IsInRole(ColdFishWMS.Models.AppRoles.QuanLyKho))
+                                    {
+                                        <td class="text-end pe-4">
+                                            <div class="dropdown">
+                                                <button class="btn btn-link text-muted p-0" data-bs-toggle="dropdown">
+                                                    <i class="fas fa-ellipsis-v"></i>
+                                                </button>
+                                                <ul class="dropdown-menu dropdown-menu-end shadow border-0">
+                                                    <li><a class="dropdown-item" asp-action="Edit" asp-route-id="@item.MaViTri"><i class="fas fa-pen text-info me-2"></i>Sửa</a></li>
+                                                    <li>
+                                                        <form asp-action="Delete" method="post" onsubmit="return confirm('Bạn có chắc chắn muốn xóa vị trí này?');">
+                                                            <input type="hidden" name="id" value="@item.MaViTri" />
+                                                            <button type="submit" class="dropdown-item text-danger"><i class="fas fa-trash me-2"></i>Xóa</button>
+                                                        </form>
+                                                    </li>
+                                                </ul>
+                                            </div>
+                                        </td>
+                                    }
+                                </tr>
+                            }
+                        }
+                        else
+                        {
+                            <tr>
+                            <tr>
+                                @if (User.IsInRole(ColdFishWMS.Models.AppRoles.QuanLyKho)) { <td colspan="6" class="text-center py-5 text-muted">Không có dữ liệu vị trí kho.</td> }
+                                else { <td colspan="5" class="text-center py-5 text-muted">Không có dữ liệu vị trí kho.</td> }
+                            </tr>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>

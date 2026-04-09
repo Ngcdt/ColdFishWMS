@@ -1,0 +1,385 @@
+@model ColdFishWMS.Models.DTOs.DashboardDTO
+@{
+    ViewData["Title"] = "Bảng điều khiển hệ thống";
+}
+
+<div class="container-fluid">
+
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h1 class="h3 mb-0 text-gray-800">Bảng điều khiển hệ thống</h1>
+    </div>
+
+    <!-- Row 1: 4 Thẻ Thống kê -->
+    <div class="row g-4 mb-4">
+        <!-- Tổng giá trị kho -->
+        <div class="col-xl-3 col-md-6">
+            <div class="card border-0 shadow-sm h-100 py-2">
+                <div class="card-body">
+                    <div class="row no-gutters align-items-center">
+                        <div class="col mr-2">
+                            <div class="mb-1 d-flex align-items-center">
+                                <span class="badge bg-light text-primary p-2 me-2"><i class="fas fa-box fa-lg"></i></span>
+                            </div>
+                            <div class="text-xs font-weight-bold text-secondary text-uppercase mb-1">
+                                Tổng giá trị kho
+                            </div>
+                            <div class="h3 mb-0 font-weight-bold text-gray-800">
+                                @Model.TongGiaTriTonKho.ToString("N0") <small>VNĐ</small>
+                            </div>
+                            <div class="mt-2 text-success small">
+                                <i class="fas fa-arrow-up"></i> +12% <span class="text-muted">so với tháng trước</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Số SKU sản phẩm -->
+        <div class="col-xl-3 col-md-6">
+            <div class="card border-0 shadow-sm h-100 py-2">
+                <div class="card-body">
+                    <div class="row no-gutters align-items-center">
+                        <div class="col mr-2">
+                            <div class="mb-1 d-flex align-items-center">
+                                <span class="badge bg-light text-success p-2 me-2"><i class="fas fa-wave-square fa-lg"></i></span>
+                            </div>
+                            <div class="text-xs font-weight-bold text-secondary text-uppercase mb-1">
+                                Số SKU sản phẩm
+                            </div>
+                            <div class="h3 mb-0 font-weight-bold text-gray-800">@Model.TongSanPham</div>
+                             <div class="mt-2 text-success small">
+                                <i class="fas fa-arrow-up"></i> +8 <span class="text-muted">so với tháng trước</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Cảnh báo chờ xử lý -->
+        <div class="col-xl-3 col-md-6">
+            <div class="card border-0 shadow-sm h-100 py-2">
+                <div class="card-body">
+                    <div class="row no-gutters align-items-center">
+                        <div class="col mr-2">
+                            <div class="mb-1 d-flex align-items-center">
+                                <span class="badge bg-light text-warning p-2 me-2"><i class="fas fa-exclamation-triangle fa-lg"></i></span>
+                            </div>
+                            <div class="text-xs font-weight-bold text-secondary text-uppercase mb-1">
+                                Cảnh báo chờ xử lý
+                            </div>
+                            <div class="h3 mb-0 font-weight-bold text-gray-800">@Model.SoCanhBaoChuaXuLy</div>
+                             <div class="mt-2 text-danger small">
+                                <i class="fas fa-arrow-down"></i> 0 <span class="text-muted">so với tháng trước</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Xuất/Nhập hôm nay -->
+        <div class="col-xl-3 col-md-6">
+            <div class="card border-0 shadow-sm h-100 py-2">
+                <div class="card-body">
+                    <div class="row no-gutters align-items-center">
+                        <div class="col mr-2">
+                             <div class="mb-1 d-flex align-items-center">
+                                <span class="badge bg-light text-info p-2 me-2"><i class="fas fa-chart-line fa-lg"></i></span>
+                            </div>
+                            <div class="text-xs font-weight-bold text-secondary text-uppercase mb-1">
+                                Xuất/Nhập hôm nay
+                            </div>
+                            <div class="h3 mb-0 font-weight-bold text-gray-800">@Model.SoLuotNhapXuatHomNay</div>
+                             <div class="mt-2 text-success small">
+                                <i class="fas fa-arrow-up"></i> +15% <span class="text-muted">so với tháng trước</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Row 2: Biểu đồ & Cảnh báo -->
+    <div class="row g-4 mb-4">
+        <!-- Xu hướng nhập/xuất kho -->
+        <div class="col-xl-8 col-lg-7">
+            <div class="card shadow-sm border-0 mb-4 h-100">
+                <div class="card-header py-3 d-flex flex-row align-items-center justify-content-between bg-white border-bottom-0">
+                    <h6 class="m-0 font-weight-bold text-primary">Xu hướng nhập/xuất kho</h6>
+                    <div>
+                        <a asp-action="Index" asp-route-days="7" class="btn btn-sm @(ViewBag.Days == 7 ? "btn-primary" : "btn-light")">7 ngày</a>
+                        <a asp-action="Index" asp-route-days="14" class="btn btn-sm @(ViewBag.Days == 14 ? "btn-primary" : "btn-light")">14 ngày</a>
+                        <a asp-action="Index" asp-route-days="30" class="btn btn-sm @(ViewBag.Days == 30 ? "btn-primary" : "btn-light")">30 ngày</a>
+                        <a asp-action="Index" asp-route-days="90" class="btn btn-sm @(ViewBag.Days == 90 ? "btn-primary" : "btn-light")">90 ngày</a>
+                    </div>
+                </div>
+                <div class="card-body">
+                    <div class="chart-area" style="height: 300px;">
+                        <canvas id="myAreaChart"></canvas>
+                    </div>
+                </div>
+                 <div class="card-footer bg-white border-top-0">
+                    <div class="row text-center">
+                          <div class="col-4">
+                              <div class="text-primary small"><i class="fas fa-chart-line"></i> Tổng nhập kho</div>
+                              <div class="h5 fw-bold">@Model.TongNhapTrongKy.ToString("N0") <small>VNĐ</small></div>
+                          </div>
+                          <div class="col-4">
+                              <div class="text-success small"><i class="fas fa-chart-line"></i> Tổng xuất kho</div>
+                               <div class="h5 fw-bold">@Model.TongXuatTrongKy.ToString("N0") <small>VNĐ</small></div>
+                          </div>
+                          <div class="col-4">
+                               <div class="text-info small"><i class="fas fa-exchange-alt"></i> Biến động ròng</div>
+                                <div class="h5 fw-bold">@((Model.TongNhapTrongKy - Model.TongXuatTrongKy).ToString("N0")) <small>VNĐ</small></div>
+                          </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Cảnh báo & Rủi ro -->
+        <div class="col-xl-4 col-lg-5">
+            <div class="card shadow-sm border-0 mb-4 h-100">
+                 <div class="card-header py-3 d-flex flex-row align-items-center justify-content-between bg-white border-bottom-0">
+                    <h6 class="m-0 font-weight-bold text-gray-800">Cảnh báo & Rủi ro <span class="badge bg-primary ms-1">@Model.SoCanhBaoChuaXuLy</span></h6>
+                </div>
+                <div class="card-body">
+                    @if (Model.CanhBaoMoiNhat.Any())
+                    {
+                         <div class="list-group list-group-flush">
+                            @foreach(var cb in Model.CanhBaoMoiNhat)
+                            {
+                                <div class="list-group-item px-0">
+                                    <div class="d-flex w-100 justify-content-between">
+                                        <h6 class="mb-1 text-danger"><i class="fas fa-exclamation-circle"></i> @cb.LoaiCanhBao</h6>
+                                        <small>@cb.NgayTao.ToString("dd/MM")</small>
+                                    </div>
+                                    <p class="mb-1 small">@cb.NoiDung</p>
+                                </div>
+                            }
+                        </div>
+                        <div class="mt-3 text-center">
+                            <a asp-controller="CanhBao" asp-action="Index" class="btn btn-link btn-sm">Xem tất cả &rarr;</a>
+                        </div>
+                    }
+                    else
+                    {
+                        <div class="text-center py-5">
+                            <i class="fas fa-check-circle fa-3x text-light mb-3" style="color: #e2e8f0 !important"></i>
+                            <div class="text-muted">Không có cảnh báo</div>
+                        </div>
+                    }
+                </div>
+                 @if (!Model.CanhBaoMoiNhat.Any())
+                 {
+                    <div class="card-footer bg-white border-top-0 text-center">
+                        <a asp-controller="CanhBao" asp-action="Index" class="text-decoration-none small">Xem tất cả &rarr;</a>
+                    </div>
+                 }
+            </div>
+        </div>
+    </div>
+
+    <!-- Row 3: Thao tác nhanh & Hoạt động -->
+    <div class="row g-4">
+        <!-- Thao tác nhanh -->
+        <div class="col-lg-6 mb-4">
+            <div class="card shadow-sm border-0 mb-4">
+                <div class="card-header py-3 bg-white border-bottom-0">
+                    <h6 class="m-0 font-weight-bold text-gray-800">Thao tác nhanh</h6>
+                </div>
+                <div class="card-body">
+                    <div class="row g-3">
+                        <div class="col-6">
+                            <a asp-controller="PhieuNhap" asp-action="Index" class="card card-body text-center text-decoration-none shadow-sm border h-100 hover-shadow">
+                                <div class="text-success mb-2"><i class="fas fa-box-open fa-2x"></i></div>
+                                <div class="fw-bold text-dark">Nhập kho</div>
+                                <small class="text-muted">Quản lý phiếu nhập hàng</small>
+                            </a>
+                        </div>
+                        <div class="col-6">
+                            <a asp-controller="PhieuXuat" asp-action="Index" class="card card-body text-center text-decoration-none shadow-sm border h-100 hover-shadow">
+                                <div class="text-primary mb-2"><i class="fas fa-shipping-fast fa-2x"></i></div>
+                                <div class="fw-bold text-dark">Xuất kho</div>
+                                <small class="text-muted">Quản lý phiếu xuất hàng</small>
+                            </a>
+                        </div>
+                        <div class="col-6">
+                            <a asp-controller="TonKho" asp-action="Index" class="card card-body text-center text-decoration-none shadow-sm border h-100 hover-shadow">
+                                <div class="text-warning mb-2"><i class="fas fa-clipboard-check fa-2x"></i></div>
+                                <div class="fw-bold text-dark">Kiểm kê</div>
+                                <small class="text-muted">Tra cứu tồn kho</small>
+                            </a>
+                        </div>
+                        <div class="col-6">
+                            <a asp-controller="BaoCao" asp-action="Index" class="card card-body text-center text-decoration-none shadow-sm border h-100 hover-shadow">
+                                <div class="text-info mb-2"><i class="fas fa-chart-bar fa-2x"></i></div>
+                                <div class="fw-bold text-dark">Báo cáo</div>
+                                <small class="text-muted">Xem báo cáo chi tiết</small>
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Hoạt động gần đây -->
+        <div class="col-lg-6 mb-4">
+             <div class="card shadow-sm border-0 mb-4 h-100">
+                <div class="card-header py-3 d-flex flex-row align-items-center justify-content-between bg-white border-bottom-0">
+                    <h6 class="m-0 font-weight-bold text-gray-800">Hoạt động gần đây</h6>
+                    <a href="#" class="small text-decoration-none">Xem tất cả &rarr;</a>
+                </div>
+                <div class="card-body">
+                    @if(Model.HoatDongGanDay.Any())
+                    {
+                        <ul class="list-group list-group-flush">
+                            @foreach(var act in Model.HoatDongGanDay)
+                            {
+                                <li class="list-group-item d-flex justify-content-between align-items-center px-0">
+                                    <div>
+                                        <i class="fas fa-circle text-primary small me-2" style="font-size: 8px;"></i>
+                                        @act.NoiDung
+                                    </div>
+                                    <span class="text-muted small">@act.ThoiGian.ToString("HH:mm dd/MM")</span>
+                                </li>
+                            }
+                        </ul>
+                    }
+                    else
+                    {
+                         <div class="text-center py-5">
+                            <div class="text-muted">Chưa có hoạt động</div>
+                        </div>
+                    }
+                </div>
+            </div>
+        </div>
+    </div>
+
+</div>
+
+<style>
+    .hover-shadow:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 .5rem 1rem rgba(0,0,0,.15)!important;
+        transition: all .2s;
+    }
+</style>
+
+@section Scripts {
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script>
+        // Set new default font family and font color to mimic Bootstrap's default styling
+        Chart.defaults.font.family = 'Nunito, -apple-system,system-ui,BlinkMacSystemFont,"Segoe UI",Roboto,"Helvetica Neue",Arial,sans-serif';
+        Chart.defaults.color = '#858796';
+
+        var ctx = document.getElementById("myAreaChart");
+        var myLineChart = new Chart(ctx, {
+            type: 'line',
+            data: {
+                labels: @Html.Raw(Json.Serialize(Model.ChartLabels)),
+                datasets: [{
+                    label: "Nhập kho",
+                    lineTension: 0.3,
+                    backgroundColor: "rgba(78, 115, 223, 0.05)",
+                    borderColor: "rgba(78, 115, 223, 1)",
+                    pointRadius: 3,
+                    pointBackgroundColor: "rgba(78, 115, 223, 1)",
+                    pointBorderColor: "rgba(78, 115, 223, 1)",
+                    pointHoverRadius: 3,
+                    pointHoverBackgroundColor: "rgba(78, 115, 223, 1)",
+                    pointHoverBorderColor: "rgba(78, 115, 223, 1)",
+                    pointHitRadius: 10,
+                    pointBorderWidth: 2,
+                    data: @Html.Raw(Json.Serialize(Model.ChartDataNhap)),
+                    extraData: @Html.Raw(Json.Serialize(Model.ChartCountNhap))
+                },
+                {
+                    label: "Xuất kho",
+                    lineTension: 0.3,
+                    backgroundColor: "rgba(28, 200, 138, 0.05)",
+                    borderColor: "rgba(28, 200, 138, 1)",
+                    pointRadius: 3,
+                    pointBackgroundColor: "rgba(28, 200, 138, 1)",
+                    pointBorderColor: "rgba(28, 200, 138, 1)",
+                    pointHoverRadius: 3,
+                    pointHoverBackgroundColor: "rgba(28, 200, 138, 1)",
+                    pointHoverBorderColor: "rgba(28, 200, 138, 1)",
+                    pointHitRadius: 10,
+                    pointBorderWidth: 2,
+                    data: @Html.Raw(Json.Serialize(Model.ChartDataXuat)),
+                    extraData: @Html.Raw(Json.Serialize(Model.ChartCountXuat))
+                }],
+            },
+            options: {
+                maintainAspectRatio: false,
+                layout: {
+                    padding: {
+                        left: 10,
+                        right: 25,
+                        top: 25,
+                        bottom: 0
+                    }
+                },
+                scales: {
+                    x: {
+                        grid: {
+                            display: false,
+                            drawBorder: false
+                        },
+                        ticks: {
+                            maxTicksLimit: 7
+                        }
+                    },
+                    y: {
+                        ticks: {
+                            maxTicksLimit: 5,
+                            padding: 10,
+                            callback: function(value, index, values) {
+                                return new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND', maximumSignificantDigits: 3 }).format(value);
+                            }
+                        },
+                        grid: {
+                            color: "rgb(234, 236, 244)",
+                            zeroLineColor: "rgb(234, 236, 244)",
+                            drawBorder: false,
+                            borderDash: [2],
+                            zeroLineBorderDash: [2]
+                        }
+                    },
+                },
+                plugins: {
+                    legend: {
+                        display: true,
+                         position: 'bottom'
+                    },
+                    tooltip: {
+                        backgroundColor: "rgb(255,255,255)",
+                        bodyColor: "#858796",
+                        titleColor: '#6e707e',
+                        borderColor: '#dddfeb',
+                        borderWidth: 1,
+                        xPadding: 15,
+                        yPadding: 15,
+                        displayColors: false,
+                        intersect: false,
+                        mode: 'index',
+                        caretPadding: 10,
+                        callbacks: {
+                            label: function(tooltipItem) {
+                                var dataset = tooltipItem.dataset;
+                                var count = dataset.extraData[tooltipItem.dataIndex];
+                                var valueFormatted = new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND' }).format(tooltipItem.raw);
+                                return dataset.label + ': ' + valueFormatted + ' (' + count + ' phiếu)';
+                            }
+                        }
+                    }
+                }
+            }
+        });
+    </script>
+}

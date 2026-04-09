@@ -1,0 +1,591 @@
+@model ColdFishWMS.Models.ViewModels.BaoCaoViewModel
+@{
+    ViewData["Title"] = "Báo cáo thống kê";
+}
+
+<div class="container-fluid">
+    <!-- Header -->
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <div>
+            <nav aria-label="breadcrumb">
+                <ol class="breadcrumb mb-1 small bg-transparent p-0">
+                    <li class="breadcrumb-item"><a asp-controller="Dashboard" asp-action="Index" class="text-decoration-none"><i class="fas fa-home"></i></a></li>
+                    <li class="breadcrumb-item"><a asp-controller="Kho" asp-action="Index" class="text-decoration-none">Kho hàng</a></li>
+                    <li class="breadcrumb-item active" aria-current="page">Báo cáo</li>
+                </ol>
+            </nav>
+            <h2 class="fw-bold text-dark mb-0">Báo cáo & Thống kê kho</h2>
+            <p class="text-muted small mb-0">Xem và phân tích dữ liệu kho hàng</p>
+        </div>
+        <div class="d-flex gap-2">
+            <!-- Period Picker dropdown -->
+             <div class="dropdown">
+                <button class="btn btn-white border dropdown-toggle bg-white" type="button" data-bs-toggle="dropdown">
+                    <i class="far fa-calendar me-2"></i> @(ViewBag.CurrentPeriod == "today" ? "Hôm nay" : ViewBag.CurrentPeriod == "week" ? "Tuần này" : ViewBag.CurrentPeriod == "month" ? "Tháng này" : ViewBag.CurrentPeriod == "year" ? "Năm nay" : "Tùy chọn")
+                </button>
+                <div class="dropdown-menu p-3 shadow" style="min-width: 300px;">
+                    <form method="get">
+                        <input type="hidden" name="period" value="custom" />
+                        <div class="mb-2">
+                            <label class="small fw-bold">Từ ngày</label>
+                            <input type="date" name="startDate" class="form-control form-control-sm" value="@Model.FromDate.ToString("yyyy-MM-dd")">
+                        </div>
+                        <div class="mb-2">
+                            <label class="small fw-bold">Đến ngày</label>
+                            <input type="date" name="endDate" class="form-control form-control-sm" value="@Model.ToDate.ToString("yyyy-MM-dd")">
+                        </div>
+                        <button class="btn btn-primary btn-sm w-100">Áp dụng</button>
+                    </form>
+                </div>
+            </div>
+
+            <!-- Export Dropdown -->
+            <div class="btn-group">
+                <button type="button" class="btn btn-primary dropdown-toggle" data-bs-toggle="dropdown" aria-expanded="false">
+                    <i class="fas fa-download me-2"></i> Xuất báo cáo
+                </button>
+                <ul class="dropdown-menu dropdown-menu-end shadow">
+                     <li><a class="dropdown-item" href="@Url.Action("ExportNXT", new { startDate = Model.FromDate, endDate = Model.ToDate })"><i class="fas fa-file-excel me-2 text-primary"></i>Báo cáo Nhập - Xuất - Tồn (Excel)</a></li>
+                     <li><hr class="dropdown-divider"></li>
+                     <li><a class="dropdown-item" href="#" onclick="showPreview('inventory'); return false;"><i class="fas fa-boxes me-2 text-warning"></i>Báo cáo Tồn kho (Chi tiết)</a></li>
+                     <li><hr class="dropdown-divider"></li>
+                     <li><a class="dropdown-item" href="#" onclick="showPreview('import'); return false;"><i class="fas fa-file-import me-2 text-success"></i>Báo cáo Nhập kho (Chi tiết)</a></li>
+                     <li><a class="dropdown-item" href="#" onclick="showPreview('export'); return false;"><i class="fas fa-file-export me-2 text-danger"></i>Báo cáo Xuất kho (Chi tiết)</a></li>
+                </ul>
+            </div>
+        </div>
+    </div>
+
+    <!-- Filter Toolbar -->
+    <!-- Filter Toolbar -->
+    <form method="get" class="d-flex flex-wrap gap-2 mb-4 align-items-center">
+        <!-- Maintain Date Range if custom -->
+        @if(ViewBag.CurrentPeriod == "custom") {
+            <input type="hidden" name="startDate" value="@Model.FromDate.ToString("yyyy-MM-dd")" />
+            <input type="hidden" name="endDate" value="@Model.ToDate.ToString("yyyy-MM-dd")" />
+        }
+        
+        <!-- Report Type Filter -->
+        <select name="reportType" class="form-select bg-white border" style="width: auto;" onchange="this.form.submit()">
+            <!option value="all" @(ViewBag.CurrentReportType == "all" ? "selected" : "")>Tất cả giao dịch</!option>
+            <!option value="tonkho" @(ViewBag.CurrentReportType == "tonkho" ? "selected" : "")>Tồn kho</!option>
+            <!option value="nhapkho" @(ViewBag.CurrentReportType == "nhapkho" ? "selected" : "")>Nhập kho</!option>
+            <!option value="xuatkho" @(ViewBag.CurrentReportType == "xuatkho" ? "selected" : "")>Xuất kho</!option>
+        </select>
+        
+        <!-- Period Filter -->
+        <div class="btn-group shadow-sm" role="group">
+            <button type="submit" name="period" value="today" class="btn @(ViewBag.CurrentPeriod == "today" ? "btn-primary" : "btn-white bg-white border text-dark")">Hôm nay</button>
+            <button type="submit" name="period" value="week" class="btn @(ViewBag.CurrentPeriod == "week" ? "btn-primary" : "btn-white bg-white border text-dark")">Tuần</button>
+            <button type="submit" name="period" value="month" class="btn @(ViewBag.CurrentPeriod == "month" ? "btn-primary" : "btn-white bg-white border text-dark")">Tháng</button>
+            <button type="submit" name="period" value="year" class="btn @(ViewBag.CurrentPeriod == "year" ? "btn-primary" : "btn-white bg-white border text-dark")">Năm</button>
+        </div>
+
+        <!-- Location Filter -->
+        <select name="searchLocation" class="form-select bg-white border" style="width: auto;" onchange="this.form.submit()">
+            <option value="">Tất cả vị trí</option>
+            @if (ViewBag.Locations != null)
+            {
+                foreach (var loc in ViewBag.Locations)
+                {
+                    if (ViewBag.CurrentLocation == loc.MaViTri)
+                    {
+                        <option value="@loc.MaViTri" selected>@loc.MaViTri</option>
+                    }
+                    else
+                    {
+                        <option value="@loc.MaViTri">@loc.MaViTri</option>
+                    }
+                }
+            }
+        </select>
+        
+        <!-- Category Filter (Hidden as not supported yet) -->
+        <!-- <select class="form-select bg-white border" style="width: auto;">
+            <option>Tất cả danh mục</option>
+        </select> -->
+    </form>
+
+    <!-- Row 1: Chart & FEFO -->
+    <div class="row g-4 mb-4">
+        <!-- Chart Section -->
+        <div class="col-lg-8">
+            <div class="card border-0 shadow-sm h-100">
+                <div class="card-body p-4">
+                    <h5 class="fw-bold mb-4">Nhập/Xuất kho <span class="fw-normal text-muted small">(@(ViewBag.CurrentPeriod == "year" ? "Theo tháng" : ViewBag.CurrentPeriod == "month" ? "Theo ngày" : "Theo thời gian"))</span></h5>
+                    
+                    <div style="height: 300px;">
+                        <canvas id="reportChart"></canvas>
+                    </div>
+
+                    <div class="d-flex justify-content-center gap-4 mt-3">
+                         <div class="d-flex align-items-center">
+                             <span style="width: 10px; height: 10px; background-color: #dc3545; display: inline-block; border-radius: 50%; margin-right: 8px;"></span>
+                             <span class="text-muted small">Xuất kho</span>
+                         </div>
+                         <div class="d-flex align-items-center">
+                             <span style="width: 10px; height: 10px; background-color: #198754; display: inline-block; border-radius: 50%; margin-right: 8px;"></span>
+                             <span class="text-muted small">Nhập kho</span>
+                         </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- FEFO Stats Section -->
+        <div class="col-lg-4">
+            <div class="card border-0 shadow-sm h-100">
+                <div class="card-body p-4">
+                    <div class="d-flex justify-content-between align-items-center mb-4">
+                         <h5 class="fw-bold m-0">Hiệu suất FEFO <i class="fas fa-info-circle text-muted small" title="First Expired, First Out"></i></h5>
+                    </div>
+
+                    <!-- Circular Progress -->
+                    <div class="position-relative mx-auto mb-4" style="width: 150px; height: 150px;">
+                        <svg class="w-100 h-100" viewBox="0 0 100 100">
+                            <circle cx="50" cy="50" r="45" fill="none" stroke="#f0f0f0" stroke-width="8"></circle>
+                            <circle cx="50" cy="50" r="45" fill="none" stroke="#4e73df" stroke-width="8" stroke-dasharray="282" stroke-dashoffset="@(282 - (282 * Model.FefoPercentage / 100))" transform="rotate(-90 50 50)"></circle>
+                        </svg>
+                        <div class="position-absolute top-50 start-50 translate-middle text-center">
+                            <div class="h3 fw-bold mb-0">@Model.FefoPercentage%</div>
+                            <small class="text-muted">Hiệu suất</small>
+                        </div>
+                    </div>
+
+                    <!-- Stats List -->
+                    <div class="vstack gap-2">
+                        <div class="d-flex justify-content-between align-items-center bg-success bg-opacity-10 p-2 rounded">
+                            <div class="text-success small fw-bold"><i class="fas fa-chart-line me-2"></i>Đúng FEFO</div>
+                            <div class="text-success fw-bold">@Model.FefoPercentage%</div>
+                        </div>
+                        <div class="d-flex justify-content-between align-items-center bg-warning bg-opacity-10 p-2 rounded">
+                            <div class="text-warning small fw-bold"><i class="fas fa-exclamation-triangle me-2"></i>Vi phạm</div>
+                            <div class="text-warning fw-bold">@Model.FefoViolation lần</div>
+                        </div>
+                         <div class="d-flex justify-content-between align-items-center bg-danger bg-opacity-10 p-2 rounded">
+                            <div class="text-danger small fw-bold"><i class="fas fa-times-circle me-2"></i>Hao hụt do HSD</div>
+                            <div class="text-danger fw-bold">@Model.SpoilageCount</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Row 1.5: New Charts (Top Products & Inventory Structure) -->
+    <div class="row g-4 mb-4">
+        <!-- Top 5 Export Products (Bar Chart) -->
+        <div class="col-lg-7">
+            <div class="card border-0 shadow-sm h-100">
+                <div class="card-body p-4">
+                    <h5 class="fw-bold mb-4">Top 5 Sản phẩm xuất kho <span class="fw-normal text-muted small">(Theo doanh thu)</span></h5>
+                    <div style="height: 250px;">
+                        <canvas id="topProductsChart"></canvas>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Inventory Structure (Pie Chart) -->
+        <div class="col-lg-5">
+            <div class="card border-0 shadow-sm h-100">
+                <div class="card-body p-4">
+                    <h5 class="fw-bold mb-4">Cơ cấu giá trị tồn kho <span class="fw-normal text-muted small">(Theo danh mục)</span></h5>
+                    <div style="height: 250px; position: relative;">
+                        <canvas id="inventoryPieChart"></canvas>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Row 2: Report Details -->
+    <div class="card border-0 shadow-sm">
+        <div class="card-header bg-white border-bottom-0 pt-4 px-4 pb-0">
+            <div class="d-flex justify-content-between align-items-center flex-wrap gap-2 mb-3">
+                <h4 class="fw-bold mb-0">Chi tiết báo cáo <span class="text-muted small fw-normal ms-2">(Cập nhật: @DateTime.Now.ToString("dd/MM/yyyy HH:mm"))</span></h4>
+            </div>
+
+            <!-- Filters Toolbar (Secondary) - keeping date range here if needed or remove? 
+                 Actually, date range is already in the main toolbar dropdown. 
+                 But let's keep it here for custom date range if "Custom" is selected. 
+                 For now, I'll simplify it.
+            -->
+        </div>
+        
+        <div class="card-body p-0">
+            <div class="table-responsive">
+                <table class="table table-hover align-middle mb-0">
+                    <thead class="bg-light text-muted small text-uppercase">
+                        <tr>
+                            <th class="ps-4">STT</th>
+                            <th>Sản phẩm</th>
+                            <th>Số lô</th>
+                            <th>Loại</th>
+                            <th>@(ViewBag.CurrentReportType == "tonkho" ? "Hạn sử dụng" : "Ngày")</th>
+                            <th class="text-end pe-4">@(ViewBag.CurrentReportType == "tonkho" ? "Tồn kho" : "Số lượng")</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @if (Model.ReportDetails != null && Model.ReportDetails.Any())
+                        {
+                            int stt = 1;
+                            foreach (var item in Model.ReportDetails)
+                            {
+                                <tr>
+                                    <td class="ps-4 text-muted">@stt</td>
+                                    <td class="fw-bold">@item.ProductName</td>
+                                    <td><span class="font-monospace text-muted small bg-light px-2 py-1 rounded border">@item.BatchCode</span></td>
+                                    <td><span class="@item.ClassType badge rounded-pill">@item.Type</span></td>
+                                    <td class="text-muted small">
+                                        @if(ViewBag.CurrentReportType == "tonkho") {
+                                            <span class="@(item.Date < DateTime.Today ? "text-danger fw-bold" : "")">@item.Date.ToString("dd/MM/yyyy")</span>
+                                        } else {
+                                            @item.Date.ToString("dd/MM/yyyy HH:mm")
+                                        }
+                                    </td>
+                                    <td class="text-end fw-bold pe-4">@item.Quantity.ToString("N0")</td>
+                                </tr>
+                                stt++;
+                            }
+                        }
+                        else
+                        {
+                            <tr>
+                                <td colspan="6" class="text-center py-5 text-muted">
+                                    <img src="https://cdn-icons-png.flaticon.com/512/4076/4076432.png" width="60" class="mb-3 opacity-50" />
+                                    <div>Không có dữ liệu</div>
+                                </td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+            
+            <!-- Pagination (Visual) -->
+             <div class="d-flex justify-content-between align-items-center px-4 py-3 border-top">
+                <span class="text-muted small">Hiển thị @Model.ReportDetails.Count bản ghi</span>
+                <div>
+                    <button class="btn btn-outline-light text-dark btn-sm me-1 disabled">Trước</button>
+                    <button class="btn btn-outline-light text-dark btn-sm disabled">Sau</button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Preview Modal -->
+<div class="modal fade" id="previewModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-xl modal-dialog-centered"> <!-- XL for wide table -->
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Xem trước báo cáo</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body" id="previewModalBody">
+                <div class="text-center py-5">
+                    <div class="spinner-border text-primary" role="status">
+                        <span class="visually-hidden">Loading...</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- ChartJS CDN -->
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script>
+    document.addEventListener("DOMContentLoaded", function() {
+        var ctx = document.getElementById('reportChart').getContext('2d');
+        var chartDataImport = @Json.Serialize(Model.ChartDataImport);
+        var chartDataExport = @Json.Serialize(Model.ChartDataExport);
+        var chartLabels = @Json.Serialize(Model.ChartLabels);
+
+        // Gradients
+        var gradientImport = ctx.createLinearGradient(0, 0, 0, 400);
+        gradientImport.addColorStop(0, 'rgba(25, 135, 84, 0.8)');   // Success Color
+        gradientImport.addColorStop(1, 'rgba(25, 135, 84, 0.1)');
+
+        var gradientExport = ctx.createLinearGradient(0, 0, 0, 400);
+        gradientExport.addColorStop(0, 'rgba(220, 53, 69, 0.8)');   // Danger Color
+        gradientExport.addColorStop(1, 'rgba(220, 53, 69, 0.1)');
+
+        new Chart(ctx, {
+            type: 'line', // Changed to Line for trend view
+            data: {
+                labels: chartLabels,
+                datasets: [
+                    {
+                        label: 'Nhập kho',
+                        data: chartDataImport,
+                        borderColor: '#198754',
+                        backgroundColor: gradientImport,
+                        borderWidth: 2,
+                        tension: 0.4,
+                        fill: true,
+                        pointRadius: 3,
+                        pointHoverRadius: 6
+                    },
+                    {
+                        label: 'Xuất kho',
+                        data: chartDataExport,
+                        borderColor: '#dc3545',
+                        backgroundColor: gradientExport,
+                        borderWidth: 2,
+                        tension: 0.4,
+                        fill: true,
+                        pointRadius: 3,
+                        pointHoverRadius: 6
+                    }
+                ]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: { display: false },
+                    tooltip: {
+                        mode: 'index',
+                        intersect: false,
+                        backgroundColor: 'rgba(255, 255, 255, 0.9)',
+                        titleColor: '#333',
+                        bodyColor: '#333',
+                        borderColor: '#ddd',
+                        borderWidth: 1,
+                        callbacks: {
+                            label: function(context) {
+                                var label = context.dataset.label || '';
+                                if (label) {
+                                    label += ': ';
+                                }
+                                if (context.parsed.y !== null) {
+                                    label += new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND' }).format(context.parsed.y);
+                                }
+                                return label;
+                            }
+                        }
+                    }
+                },
+                scales: {
+                    y: {
+                        beginAtZero: true,
+                        grid: { borderDash: [5, 5], color: '#f0f0f0' },
+                        ticks: {
+                            callback: function(value, index, values) {
+                                if (value >= 1000000) return (value / 1000000).toFixed(0) + 'M';
+                                if (value >= 1000) return (value / 1000).toFixed(0) + 'k';
+                                return value;
+                            }
+                        }
+                    },
+                    x: {
+                        grid: { display: false }
+                    }
+                },
+                interaction: {
+                    mode: 'nearest',
+                    axis: 'x',
+                    intersect: false
+                }
+            }
+        });
+
+        // --- NEW CHARTS INIT ---
+        
+        // 1. Top Products Bar Chart
+        var topProductsCtx = document.getElementById('topProductsChart').getContext('2d');
+        var topProductsLabels = @Json.Serialize(Model.BarChartLabels);
+        var topProductsData = @Json.Serialize(Model.BarChartData);
+
+        new Chart(topProductsCtx, {
+            type: 'bar',
+            data: {
+                labels: topProductsLabels,
+                datasets: [{
+                    label: 'Doanh thu',
+                    data: topProductsData,
+                    backgroundColor: 'rgba(54, 162, 235, 0.7)',
+                    borderColor: 'rgba(54, 162, 235, 1)',
+                    borderWidth: 1,
+                    borderRadius: 4,
+                    barThickness: 30
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                indexAxis: 'y',
+                plugins: {
+                    legend: { display: false },
+                    tooltip: {
+                         callbacks: {
+                            label: function(context) {
+                                return new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND' }).format(context.parsed.x);
+                            }
+                        }
+                    }
+                },
+                scales: {
+                    x: {
+                        beginAtZero: true,
+                        ticks: {
+                            callback: function(value) {
+                                if (value >= 1000000) return (value / 1000000).toFixed(1) + 'M';
+                                return value;
+                            }
+                        }
+                    },
+                    y: {
+                        grid: { display: false }
+                    }
+                }
+            }
+        });
+
+        // 2. Inventory Pie Chart
+        var inventoryPieCtx = document.getElementById('inventoryPieChart').getContext('2d');
+        var inventoryPieLabels = @Json.Serialize(Model.PieChartLabels);
+        var inventoryPieData = @Json.Serialize(Model.PieChartData);
+
+        var backgroundColors = [
+            '#4e73df', '#1cc88a', '#36b9cc', '#f6c23e', '#e74a3b', 
+            '#858796', '#5a5c69', '#f8f9fc', '#20c9a6', '#6610f2'
+        ];
+
+        new Chart(inventoryPieCtx, {
+            type: 'doughnut',
+            data: {
+                labels: inventoryPieLabels,
+                datasets: [{
+                    data: inventoryPieData,
+                    backgroundColor: backgroundColors,
+                    hoverBackgroundColor: backgroundColors,
+                    hoverBorderColor: "rgba(234, 236, 244, 1)",
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: {
+                        position: 'right',
+                        labels: {
+                            usePointStyle: true,
+                            boxWidth: 10
+                        }
+                    },
+                    tooltip: {
+                        callbacks: {
+                            label: function(context) {
+                                var value = context.parsed;
+                                var total = context.dataset.data.reduce((a, b) => a + b, 0);
+                                var percentage = ((value / total) * 100).toFixed(1) + '%';
+                                var money = new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND' }).format(value);
+                                return ' ' + context.label + ': ' + money + ' (' + percentage + ')';
+                            }
+                        }
+                    }
+                },
+                cutout: '70%',
+            }
+        });
+    });
+
+    function showPreview(type) {
+        var modal = new bootstrap.Modal(document.getElementById('previewModal'));
+        modal.show();
+
+        var body = document.getElementById('previewModalBody');
+        body.innerHTML = '<div class="text-center py-5"><div class="spinner-border text-primary" role="status"></div><div class="mt-2 text-muted">Đang tải dữ liệu chi tiết...</div></div>';
+
+        var url = '';
+        var params = new URLSearchParams(window.location.search);
+        
+        if (type === 'inventory') {
+            url = '/BaoCao/PreviewInventory?' + params.toString();
+        } else if (type === 'import') {
+            url = '/BaoCao/PreviewImport?' + params.toString();
+        } else if (type === 'export') {
+            url = '/BaoCao/PreviewExport?' + params.toString();
+        }
+
+        fetch(url)
+            .then(response => response.text())
+            .then(html => {
+                body.innerHTML = html;
+
+                // Check and Init Chart
+                var dataScript = document.getElementById('preview-chart-data');
+                if (dataScript) {
+                    try {
+                        var chartConfig = JSON.parse(dataScript.textContent);
+                        initPreviewChart(chartConfig);
+                    } catch (e) {
+                        console.error("Error parsing chart data", e);
+                    }
+                }
+            })
+            .catch(err => {
+                body.innerHTML = '<div class="text-center text-danger py-5"><i class="fas fa-exclamation-triangle fa-2x mb-3"></i><br>Lỗi tải báo cáo. Vui lòng thử lại.</div>';
+                console.error(err);
+            });
+    }
+
+    function initPreviewChart(config) {
+        var ctx = document.getElementById('previewChart').getContext('2d');
+        
+        var chartType = config.type === 'Inventory' ? 'doughnut' : 'bar';
+        var indexAxis = config.type === 'Inventory' ? 'x' : 'y';
+        var bgColors = config.type === 'Inventory' 
+            ? ['#4e73df', '#1cc88a', '#36b9cc', '#f6c23e', '#e74a3b', '#858796'] 
+            : 'rgba(78, 115, 223, 0.7)';
+
+        new Chart(ctx, {
+            type: chartType,
+            data: {
+                labels: config.labels,
+                datasets: [{
+                    label: 'Giá trị',
+                    data: config.data,
+                    backgroundColor: bgColors,
+                    borderWidth: 1
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                indexAxis: indexAxis,
+                plugins: {
+                    legend: { 
+                        display: config.type === 'Inventory',
+                        position: 'right'
+                    },
+                     tooltip: {
+                         callbacks: {
+                            label: function(context) {
+                                return new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND' }).format(context.parsed.x || context.parsed);
+                            }
+                        }
+                    }
+                },
+                scales: {
+                    x: { 
+                        display: config.type !== 'Inventory',
+                        ticks: {
+                            callback: function(value) {
+                                if (value >= 1000000) return (value / 1000000).toFixed(1) + 'M';
+                                return value;
+                            }
+                        }
+                    },
+                    y: { 
+                        display: config.type !== 'Inventory' 
+                    }
+                }
+            }
+        });
+    }
+
+
+</script>

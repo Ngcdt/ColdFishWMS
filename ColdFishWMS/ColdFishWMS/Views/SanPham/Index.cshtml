@@ -1,0 +1,100 @@
+@model IEnumerable<ColdFishWMS.Models.Entities.SanPham>
+@{
+    ViewData["Title"] = "Quản lý sản phẩm";
+}
+
+    <div class="d-flex justify-content-between align-items-center mb-3">
+        <div>
+            <nav aria-label="breadcrumb">
+                <ol class="breadcrumb mb-1 small bg-transparent p-0">
+                    <li class="breadcrumb-item"><a asp-controller="Dashboard" asp-action="Index" class="text-decoration-none"><i class="fas fa-home"></i></a></li>
+                    <li class="breadcrumb-item active" aria-current="page">Quản lý sản phẩm</li>
+                </ol>
+            </nav>
+            <h2><i class="fas fa-box"></i> Quản lý sản phẩm</h2>
+        </div>
+        @if (User.IsInRole(ColdFishWMS.Models.AppRoles.QuanLyKho))
+        {
+            <a asp-action="Create" class="btn btn-primary">
+                <i class="fas fa-plus"></i> Thêm sản phẩm
+            </a>
+        }
+    </div>
+
+<div class="card">
+    <div class="card-body">
+        <div class="mb-3">
+            <input type="text" id="searchBox" class="form-control" placeholder="Tìm kiếm sản phẩm..." />
+        </div>
+        
+        <div class="table-responsive">
+            <table class="table table-hover" id="tableData">
+                <thead>
+                    <tr>
+                        <th>Mã sản phẩm</th>
+                        <th>Tên sản phẩm</th>
+                        <th>Mã NCC</th>
+                        <th>Đơn vị tính</th>
+                        <th>Giá nhập</th>
+                        <th>Trạng thái</th>
+                        <th>Ngày tạo</th>
+                        @if (User.IsInRole(ColdFishWMS.Models.AppRoles.QuanLyKho))
+                        {
+                            <th>Thao tác</th>
+                        }
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var item in Model)
+                    {
+                        <tr>
+                            <td>@item.MaSanPham</td>
+                            <td>@item.TenSanPham</td>
+                            <td>@(item.NhaCungCap?.MaNhaCungCap ?? "-")</td>
+                            <td>@item.DonViTinh?.TenDonViTinh</td>
+                            <td>@item.GiaNhapMacDinh.ToString("N0") VNĐ</td>
+                            <td>
+                                @if (item.TrangThaiHoatDong)
+                                {
+                                    <span class="badge bg-success">Hoạt động</span>
+                                }
+                                else
+                                {
+                                    <span class="badge bg-secondary">Ngừng</span>
+                                }
+                            </td>
+                            <td>@item.NgayTao.ToString("dd/MM/yyyy")</td>
+                            @if (User.IsInRole(ColdFishWMS.Models.AppRoles.QuanLyKho))
+                            {
+                                <td>
+                                    <a asp-action="Edit" asp-route-id="@item.MaSanPham" class="btn btn-sm btn-warning">
+                                        <i class="fas fa-edit"></i>
+                                    </a>
+                                    <form asp-action="Delete" asp-route-id="@item.MaSanPham" method="post" class="d-inline">
+                                        <button type="submit" class="btn btn-sm btn-danger" onclick="return confirm('Bạn có chắc muốn xóa?')">
+                                            <i class="fas fa-trash"></i>
+                                        </button>
+                                    </form>
+                                </td>
+                            }
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+        $(document).ready(function() {
+            $('#searchBox').on('keyup', function() {
+                var value = $(this).val().toLowerCase();
+                $('#tableData tbody tr').filter(function() {
+                    $(this).toggle($(this).text().toLowerCase().indexOf(value) > -1)
+                });
+            });
+        });
+    </script>
+}
+

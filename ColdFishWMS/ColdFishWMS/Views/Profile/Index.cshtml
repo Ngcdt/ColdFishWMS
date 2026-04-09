@@ -1,0 +1,118 @@
+@model ColdFishWMS.Models.Entities.NguoiDung
+@{
+    ViewData["Title"] = "Hồ sơ cá nhân";
+}
+
+<div class="container-fluid">
+    <!-- Breadcrumb -->
+    <nav aria-label="breadcrumb" class="mb-4">
+        <ol class="breadcrumb bg-transparent p-0">
+            <li class="breadcrumb-item"><a asp-controller="Dashboard" asp-action="Index" class="text-decoration-none">Trang chủ</a></li>
+            <li class="breadcrumb-item active" aria-current="page">Hồ sơ cá nhân</li>
+        </ol>
+    </nav>
+
+    <!-- Alerts -->
+    @if (TempData["Success"] != null)
+    {
+        <div class="alert alert-success alert-dismissible fade show" role="alert">
+            <i class="fas fa-check-circle me-2"></i> @TempData["Success"]
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+        </div>
+    }
+    @if (TempData["Error"] != null)
+    {
+        <div class="alert alert-danger alert-dismissible fade show" role="alert">
+            <i class="fas fa-exclamation-circle me-2"></i> @TempData["Error"]
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+        </div>
+    }
+
+    <div class="row g-4">
+        <!-- Profile Card & Edit Form -->
+        <div class="col-lg-8">
+            <div class="card border-0 shadow-sm h-100">
+                <div class="card-header bg-white py-3 border-bottom">
+                    <h5 class="fw-bold mb-0 text-primary"><i class="fas fa-user-edit me-2"></i> Thông tin chung</h5>
+                </div>
+                <div class="card-body p-4">
+                    <div class="d-flex align-items-center mb-4 pb-4 border-bottom">
+                         <div class="bg-primary text-white rounded-circle d-flex align-items-center justify-content-center shadow-sm flex-shrink-0" style="width: 80px; height: 80px; font-size: 2rem;">
+                             <i class="fas fa-user"></i>
+                        </div>
+                        <div class="ms-4">
+                            <h4 class="fw-bold mb-1">@Model.HoTen</h4>
+                            <div class="text-muted mb-2">@Model.TenDangNhap</div>
+                            <span class="badge bg-primary bg-opacity-10 text-primary px-3 py-2 rounded-pill">@Model.VaiTro?.TenVaiTro</span>
+                        </div>
+                    </div>
+
+                    <form asp-action="Update" method="post">
+                        <div class="row g-3">
+                            <div class="col-md-6">
+                                <label class="form-label text-muted small fw-bold text-uppercase">Họ và tên</label>
+                                <input type="text" name="HoTen" class="form-control" value="@Model.HoTen" required />
+                            </div>
+                             <div class="col-md-6">
+                                <label class="form-label text-muted small fw-bold text-uppercase">Tên đăng nhập</label>
+                                <input type="text" class="form-control bg-light" value="@Model.TenDangNhap" readonly />
+                                 <small class="text-muted fst-italic">Không thể thay đổi</small>
+                            </div>
+                            <div class="col-md-6">
+                                <label class="form-label text-muted small fw-bold text-uppercase">Email</label>
+                                <input type="email" name="Email" class="form-control" value="@Model.Email" placeholder="Chưa cập nhật" />
+                            </div>
+                            <div class="col-md-6">
+                                <label class="form-label text-muted small fw-bold text-uppercase">Số điện thoại</label>
+                                <input type="text" name="SoDienThoai" class="form-control" value="@Model.SoDienThoai" placeholder="Chưa cập nhật" />
+                            </div>
+                        </div>
+
+                        <div class="d-flex justify-content-end mt-4">
+                            <button type="submit" class="btn btn-primary px-4"><i class="fas fa-save me-2"></i> Lưu thay đổi</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+
+        <!-- Security Card -->
+        <div class="col-lg-4">
+            <div class="card border-0 shadow-sm h-100">
+                <div class="card-header bg-white py-3 border-bottom">
+                    <h5 class="fw-bold mb-0 text-warning"><i class="fas fa-shield-alt me-2"></i> Đổi mật khẩu</h5>
+                </div>
+                <div class="card-body p-4">
+                     @if (TempData["PassSuccess"] != null)
+                    {
+                        <div class="alert alert-success small p-2"><i class="fas fa-check me-1"></i> @TempData["PassSuccess"]</div>
+                    }
+                    @if (TempData["PassError"] != null)
+                    {
+                        <div class="alert alert-danger small p-2"><i class="fas fa-times me-1"></i> @TempData["PassError"]</div>
+                    }
+
+                    <form asp-action="ChangePassword" method="post">
+                        <div class="mb-3">
+                            <label class="form-label small fw-bold">Mật khẩu cũ</label>
+                            <input type="password" name="CurrentPassword" class="form-control" required placeholder="••••••" />
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label small fw-bold">Mật khẩu mới</label>
+                            <input type="password" name="NewPassword" class="form-control" required placeholder="••••••" />
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label small fw-bold">Xác nhận mật khẩu mới</label>
+                            <input type="password" name="ConfirmPassword" class="form-control" required placeholder="••••••" />
+                        </div>
+                        <button type="submit" class="btn btn-warning w-100"><i class="fas fa-key me-2"></i> Cập nhật mật khẩu</button>
+                    </form>
+                    
+                    <div class="mt-4 pt-3 border-top text-center text-muted small">
+                         <i class="fas fa-info-circle me-1"></i> Mật khẩu nên có ít nhất 6 ký tự để đảm bảo an toàn.
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

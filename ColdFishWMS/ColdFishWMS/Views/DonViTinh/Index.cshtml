@@ -1,0 +1,122 @@
+@model IEnumerable<ColdFishWMS.Models.Entities.DonViTinh>
+@{
+    ViewData["Title"] = "Đơn vị tính";
+}
+
+<div class="container-fluid">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <div>
+            <nav aria-label="breadcrumb">
+                <ol class="breadcrumb mb-1 small bg-transparent p-0">
+                    <li class="breadcrumb-item"><a asp-controller="Dashboard" asp-action="Index" class="text-decoration-none"><i class="fas fa-home"></i></a></li>
+                    <li class="breadcrumb-item active" aria-current="page">Quản lý Đơn vị tính</li>
+                </ol>
+            </nav>
+            <h2 class="fw-bold text-dark mb-0">Đơn vị tính</h2>
+            <p class="text-muted small mb-0">Quản lý danh mục đơn vị đo lường</p>
+        </div>
+        <div class="d-flex gap-2">
+            @if(User.IsInRole(ColdFishWMS.Models.AppRoles.QuanLyKho)) {
+            <button class="btn btn-primary shadow-sm" data-bs-toggle="modal" data-bs-target="#createModal">
+                <i class="fas fa-plus me-2"></i> Thêm mới
+            </button>
+            }
+        </div>
+    </div>
+
+    <!-- Alerts handled by Global Toast -->
+
+    <div class="card shadow-sm border-0">
+        <div class="card-body p-0">
+            <div class="table-responsive">
+                <table class="table table-hover align-middle mb-0">
+                    <thead class="bg-light text-muted small text-uppercase">
+                        <tr>
+                            <th class="ps-4">Tên đơn vị tính</th>
+                            <th class="text-end pe-4">Thao tác</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @if (Model != null && Model.Any())
+                        {
+                            foreach (var item in Model)
+                            {
+                                <tr>
+                                    <td class="ps-4 fw-bold text-primary">@item.TenDonViTinh</td>
+                                    <td class="text-end pe-4">
+                                        @if(User.IsInRole(ColdFishWMS.Models.AppRoles.QuanLyKho)) {
+                                        <button class="btn btn-sm btn-outline-primary me-1" 
+                                                data-bs-toggle="modal" 
+                                                data-bs-target="#editModal-@item.MaDonViTinh">
+                                            <i class="fas fa-edit"></i>
+                                        </button>
+                                        <form asp-action="Delete" asp-route-id="@item.MaDonViTinh" method="post" class="d-inline" onsubmit="return confirm('Bạn có chắc chắn muốn xóa đơn vị này?');">
+                                            <button type="submit" class="btn btn-sm btn-outline-danger">
+                                                <i class="fas fa-trash"></i>
+                                            </button>
+                                        </form>
+                                        }
+                                    </td>
+                                </tr>
+
+                                <!-- Edit Modal -->
+                                <div class="modal fade" id="editModal-@item.MaDonViTinh" tabindex="-1" aria-hidden="true">
+                                    <div class="modal-dialog">
+                                        <div class="modal-content">
+                                            <div class="modal-header">
+                                                <h5 class="modal-title fw-bold">Cập nhật Đơn vị tính</h5>
+                                                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                                            </div>
+                                            <form asp-action="Edit" method="post">
+                                                <div class="modal-body">
+                                                    <input type="hidden" name="id" value="@item.MaDonViTinh" />
+                                                    <input type="hidden" name="MaDonViTinh" value="@item.MaDonViTinh" />
+                                                    <div class="mb-3">
+                                                        <label class="form-label">Tên đơn vị tính <span class="text-danger">*</span></label>
+                                                        <input type="text" class="form-control" name="TenDonViTinh" value="@item.TenDonViTinh" required>
+                                                    </div>
+                                                </div>
+                                                <div class="modal-footer">
+                                                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Hủy</button>
+                                                    <button type="submit" class="btn btn-primary">Lưu thay đổi</button>
+                                                </div>
+                                            </form>
+                                        </div>
+                                    </div>
+                                </div>
+                            }
+                        }
+                        else
+                        {
+                            <tr><td colspan="2" class="text-center py-4 text-muted">Chưa có dữ liệu.</td></tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Create Modal -->
+<div class="modal fade" id="createModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title fw-bold">Thêm mới Đơn vị tính</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <form asp-action="Create" method="post">
+                <div class="modal-body">
+                    <div class="mb-3">
+                        <label class="form-label">Tên đơn vị tính <span class="text-danger">*</span></label>
+                        <input type="text" class="form-control" name="TenDonViTinh" required placeholder="Ví dụ: Cái, Hộp, Kg...">
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Hủy</button>
+                    <button type="submit" class="btn btn-primary">Thêm mới</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>

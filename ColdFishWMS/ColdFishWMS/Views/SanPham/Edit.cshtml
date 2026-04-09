@@ -1,0 +1,134 @@
+@model ColdFishWMS.Models.Entities.SanPham
+@{
+    ViewData["Title"] = "Cập nhật sản phẩm";
+}
+
+<div class="row justify-content-center">
+    <div class="col-md-8">
+        <div class="d-flex justify-content-between align-items-center mb-4">
+            <h2 class="fw-bold text-dark mb-0"><i class="fas fa-edit text-primary"></i> Cập nhật sản phẩm</h2>
+        </div>
+
+        <div class="card shadow-sm border-0">
+            <div class="card-body">
+                <form asp-action="Edit" method="post">
+                    <div asp-validation-summary="All" class="text-danger mb-3"></div>
+                    <input type="hidden" asp-for="MaSanPham" /> <!-- Use MaSanPham as Key -->
+
+                    <div class="row">
+                        <div class="col-md-6 mb-3">
+                            <label asp-for="MaSanPham" class="form-label">Mã sản phẩm *</label>
+                            <input asp-for="MaSanPham" class="form-control" readonly /> <!-- Usually Code not editable -->
+                            <span asp-validation-for="MaSanPham" class="text-danger"></span>
+                        </div>
+                        
+                        <div class="col-md-6 mb-3">
+                            <label asp-for="TenSanPham" class="form-label">Tên sản phẩm *</label>
+                            <input asp-for="TenSanPham" class="form-control" />
+                            <span asp-validation-for="TenSanPham" class="text-danger"></span>
+                        </div>
+                    </div>
+                    
+                    <div class="row">
+                        <div class="col-md-4 mb-3">
+                            <label asp-for="MaLoai" class="form-label">Loại sản phẩm *</label>
+                            <select asp-for="MaLoai" class="form-select">
+                                <option value="">-- Chọn loại --</option>
+                                @if (ViewBag.LoaiSanPhams != null)
+                                {
+                                    foreach (var loai in ViewBag.LoaiSanPhams as List<ColdFishWMS.Models.Entities.LoaiSanPham>)
+                                    {
+                                        <option value="@loai.MaLoai">@loai.TenLoai</option>
+                                    }
+                                }
+                            </select>
+                            <span asp-validation-for="MaLoai" class="text-danger"></span>
+                        </div>
+
+                        <div class="col-md-4 mb-3">
+                            <label asp-for="MaDonViTinh" class="form-label">Đơn vị tính *</label>
+                            <select asp-for="MaDonViTinh" class="form-select">
+                                <option value="">-- Chọn đơn vị tính --</option>
+                                @foreach (var dv in ViewBag.DonViTinhs as List<ColdFishWMS.Models.Entities.DonViTinh>)
+                                {
+                                    <option value="@dv.MaDonViTinh">@dv.TenDonViTinh</option>
+                                }
+                            </select>
+                            <span asp-validation-for="MaDonViTinh" class="text-danger"></span>
+                        </div>
+                        
+                        <div class="col-md-4 mb-3">
+                            <label asp-for="GiaNhapMacDinh" class="form-label">Giá nhập mặc định *</label>
+                            <input asp-for="GiaNhapMacDinh" class="form-control" type="number" step="0.01" />
+                            <span asp-validation-for="GiaNhapMacDinh" class="text-danger"></span>
+                        </div>
+                    </div>
+
+                    <div class="row">
+                        <div class="col-md-12 mb-3">
+                            <label asp-for="MaNhaCungCap" class="form-label">Nhà cung cấp chính</label>
+                            <select asp-for="MaNhaCungCap" class="form-select">
+                                <option value="">-- Chọn nhà cung cấp --</option>
+                                @if(ViewBag.NhaCungCaps != null)
+                                {
+                                    foreach (var ncc in ViewBag.NhaCungCaps as List<ColdFishWMS.Models.Entities.NhaCungCap>)
+                                    {
+                                        <option value="@ncc.MaNhaCungCap">@ncc.TenNhaCungCap (@ncc.MaNhaCungCap)</option>
+                                    }
+                                }
+                            </select>
+                            <span asp-validation-for="MaNhaCungCap" class="text-danger"></span>
+                        </div>
+                    </div>
+                    
+                    <div class="mb-3">
+                        <label asp-for="MoTa" class="form-label">Mô tả</label>
+                        <textarea asp-for="MoTa" class="form-control" rows="3"></textarea>
+                    </div>
+
+                    <div class="row">
+                         <!-- Thresholds -->
+                        <div class="col-md-4 mb-3">
+                            <label asp-for="DinhMucTonThap" class="form-label">Định mức tồn thấp</label>
+                            <input asp-for="DinhMucTonThap" class="form-control" type="number" />
+                        </div>
+                        <div class="col-md-4 mb-3">
+                            <label asp-for="NhietDoToiThieu" class="form-label">Nhiệt độ tối thiểu</label>
+                             <div class="input-group">
+                                <input asp-for="NhietDoToiThieu" class="form-control" type="number" step="0.1"/>
+                                <span class="input-group-text">°C</span>
+                            </div>
+                        </div>
+                         <div class="col-md-4 mb-3">
+                            <label asp-for="NhietDoToiDa" class="form-label">Nhiệt độ tối đa</label>
+                            <div class="input-group">
+                                <input asp-for="NhietDoToiDa" class="form-control" type="number" step="0.1" />
+                                <span class="input-group-text">°C</span>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="mb-3 form-check form-switch fs-5">
+                        <input asp-for="TrangThaiHoatDong" class="form-check-input" />
+                        <label asp-for="TrangThaiHoatDong" class="form-check-label">
+                            Trạng thái hoạt động
+                        </label>
+                    </div>
+                    
+                    <div class="d-flex gap-2">
+                        <button type="submit" class="btn btn-primary">
+                            <i class="fas fa-save me-2"></i> Lưu thay đổi
+                        </button>
+                        <a asp-action="Index" class="btn btn-secondary">
+                            <i class="fas fa-times me-2"></i> Hủy
+                        </a>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+}

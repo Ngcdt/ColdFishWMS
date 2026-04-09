@@ -1,0 +1,109 @@
+@model ColdFishWMS.Models.Entities.NguoiDung
+@{
+    ViewData["Title"] = "Chỉnh sửa người dùng";
+    var roles = ViewBag.VaiTros as List<ColdFishWMS.Models.Entities.VaiTro>;
+}
+
+<div class="container-fluid">
+     <!-- Breadcrumb -->
+    <nav aria-label="breadcrumb" class="mb-4">
+        <ol class="breadcrumb bg-transparent p-0">
+            <li class="breadcrumb-item"><a asp-controller="Dashboard" asp-action="Index" class="text-decoration-none">Trang chủ</a></li>
+            <li class="breadcrumb-item"><a asp-action="Index" class="text-decoration-none">Quản lý Người dùng</a></li>
+            <li class="breadcrumb-item"><a asp-action="Details" asp-route-id="@Model.MaNguoiDung" class="text-decoration-none">@Model.HoTen</a></li>
+            <li class="breadcrumb-item active" aria-current="page">Chỉnh sửa</li>
+        </ol>
+    </nav>
+
+    <div class="row justify-content-center">
+        <div class="col-lg-8">
+            <div class="card border-0 shadow-sm">
+                <div class="card-header bg-white py-3">
+                    <h5 class="fw-bold mb-0 text-primary"><i class="fas fa-user-edit me-2"></i> Chỉnh sửa người dùng</h5>
+                </div>
+                <div class="card-body p-4">
+                    <form asp-action="Edit" method="post">
+                        <div asp-validation-summary="ModelOnly" class="text-danger mb-3"></div>
+                        <input type="hidden" asp-for="MaNguoiDung" />
+                        <input type="hidden" asp-for="NgayTao" />
+                        <!-- Preserve TenDangNhap logic if we don't want it editable directly that affects linking -->
+                        <!-- But showing it as readonly is good -->
+
+                        <div class="row g-3">
+                            <!-- Cột 1: Thông tin tài khoản -->
+                            <div class="col-md-6 border-end">
+                                <h6 class="text-secondary mb-3 text-uppercase small fw-bold">Thông tin tài khoản</h6>
+                                
+                                <div class="mb-3">
+                                    <label asp-for="TenDangNhap" class="form-label">Tên đăng nhập</label>
+                                    <input asp-for="TenDangNhap" class="form-control" readonly style="background-color: #e9ecef;" />
+                                </div>
+
+                                <div class="mb-3">
+                                    <label class="form-label">Mật khẩu mới</label>
+                                    <input type="password" name="NewPassword" class="form-control" placeholder="Để trống nếu không đổi..." />
+                                    <small class="text-muted">Chỉ nhập nếu bạn muốn đổi mật khẩu.</small>
+                                </div>
+
+                                <div class="mb-3">
+                                    <label asp-for="MaVaiTro" class="form-label">Vai trò <span class="text-danger">*</span></label>
+                                    <select asp-for="MaVaiTro" class="form-select">
+                                        <option value="">-- Chọn vai trò --</option>
+                                        @if(roles != null)
+                                        {
+                                            foreach (var r in roles)
+                                            {
+                                                <option value="@r.MaVaiTro">@r.TenVaiTro</option>
+                                            }
+                                        }
+                                    </select>
+                                    <span asp-validation-for="MaVaiTro" class="text-danger small"></span>
+                                </div>
+
+                                <div class="mb-3">
+                                    <div class="form-check form-switch mt-3">
+                                        <input class="form-check-input" type="checkbox" asp-for="TrangThaiHoatDong">
+                                        <label class="form-check-label" asp-for="TrangThaiHoatDong">Đang hoạt động</label>
+                                    </div>
+                                    <small class="text-muted">Tắt để khóa tài khoản này.</small>
+                                </div>
+                            </div>
+
+                            <!-- Cột 2: Thông tin cá nhân -->
+                            <div class="col-md-6 ps-md-4">
+                                <h6 class="text-secondary mb-3 text-uppercase small fw-bold">Thông tin cá nhân</h6>
+
+                                <div class="mb-3">
+                                    <label asp-for="HoTen" class="form-label">Họ và tên <span class="text-danger">*</span></label>
+                                    <input asp-for="HoTen" class="form-control" placeholder="Nhập họ và tên..." />
+                                    <span asp-validation-for="HoTen" class="text-danger small"></span>
+                                </div>
+
+                                <div class="mb-3">
+                                    <label asp-for="Email" class="form-label">Email</label>
+                                    <input asp-for="Email" type="email" class="form-control" placeholder="example@gmail.com" />
+                                    <span asp-validation-for="Email" class="text-danger small"></span>
+                                </div>
+
+                                <div class="mb-3">
+                                    <label asp-for="SoDienThoai" class="form-label">Số điện thoại</label>
+                                    <input asp-for="SoDienThoai" class="form-control" placeholder="09xxxxxxxx" />
+                                    <span asp-validation-for="SoDienThoai" class="text-danger small"></span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="d-flex justify-content-end mt-4 pt-3 border-top">
+                            <a asp-action="Index" class="btn btn-light me-2">Hủy bỏ</a>
+                            <button type="submit" class="btn btn-warning px-4"><i class="fas fa-save me-1"></i> Lưu thay đổi</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
+}

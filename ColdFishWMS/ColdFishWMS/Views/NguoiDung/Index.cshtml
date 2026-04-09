@@ -1,0 +1,214 @@
+@model ColdFishWMS.Models.ViewModels.UserManagementViewModel
+@{
+    ViewData["Title"] = "Quản lý Người dùng";
+    var roles = ViewBag.VaiTros as List<ColdFishWMS.Models.Entities.VaiTro>;
+}
+
+<div class="container-fluid">
+    
+    <!-- Breadcrumb -->
+    <nav aria-label="breadcrumb" class="mb-4">
+        <ol class="breadcrumb bg-transparent p-0">
+            <li class="breadcrumb-item"><a asp-controller="Dashboard" asp-action="Index" class="text-decoration-none"><i class="fas fa-home"></i></a></li>
+            <li class="breadcrumb-item active" aria-current="page">Quản lý Người dùng & Vai trò</li>
+        </ol>
+    </nav>
+
+    <!-- Header -->
+    <div class="d-flex align-items-center mb-4">
+        <div class="bg-primary bg-opacity-10 p-3 rounded-3 me-3 text-primary">
+            <i class="fas fa-users-gear fa-2x"></i>
+        </div>
+        <div>
+            <h3 class="fw-bold mb-0">Quản lý Người dùng & Vai trò</h3>
+            <div class="text-muted">Quản lý thông tin người dùng, thiết lập và phân quyền vai trò trong hệ thống</div>
+        </div>
+    </div>
+
+    <!-- Stats Cards -->
+    <div class="row g-4 mb-5">
+        <!-- Tổng người dùng -->
+        <div class="col-md-3">
+            <div class="card border-0 shadow-sm h-100 p-3">
+                <div class="d-flex justify-content-between mb-3">
+                    <div class="bg-primary bg-opacity-10 p-2 rounded text-primary">
+                        <i class="fas fa-users fa-lg"></i>
+                    </div>
+                </div>
+                <div class="text-muted small">Tổng người dùng</div>
+                <h2 class="fw-bold mb-0">@Model.TongNguoiDung</h2>
+                <div class="text-success small mt-2">
+                    <i class="fas fa-arrow-up"></i> +12% <span class="text-muted">so với tháng trước</span>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Người dùng hoạt động -->
+        <div class="col-md-3">
+            <div class="card border-0 shadow-sm h-100 p-3">
+                <div class="d-flex justify-content-between mb-3">
+                    <div class="bg-success bg-opacity-10 p-2 rounded text-success">
+                        <i class="fas fa-user-check fa-lg"></i>
+                    </div>
+                </div>
+                <div class="text-muted small">Người dùng hoạt động</div>
+                <h2 class="fw-bold mb-0">@Model.NguoiDungHoatDong</h2>
+                 <div class="text-muted small mt-2">
+                    7 ngày gần đây
+                </div>
+            </div>
+        </div>
+
+        <!-- Loại vai trò -->
+        <div class="col-md-3">
+            <div class="card border-0 shadow-sm h-100 p-3">
+                <div class="d-flex justify-content-between mb-3">
+                    <div class="bg-info bg-opacity-10 p-2 rounded text-info">
+                        <i class="fas fa-shield-alt fa-lg"></i>
+                    </div>
+                </div>
+                <div class="text-muted small">Loại vai trò</div>
+                <h2 class="fw-bold mb-0">@Model.SoLuongVaiTro</h2>
+                 <div class="text-muted small mt-2">
+                    Đã cấu hình
+                </div>
+            </div>
+        </div>
+        
+        <!-- Đăng nhập hôm nay -->
+        <div class="col-md-3">
+             <div class="card border-0 shadow-sm h-100 p-3">
+                <div class="d-flex justify-content-between mb-3">
+                    <div class="bg-warning bg-opacity-10 p-2 rounded text-warning">
+                        <i class="fas fa-sign-in-alt fa-lg"></i>
+                    </div>
+                </div>
+                <div class="text-muted small">Đăng nhập hôm nay</div>
+                <h2 class="fw-bold mb-0">@Model.DangNhapHomNay</h2>
+                 <div class="text-success small mt-2">
+                    <i class="fas fa-arrow-up"></i> +8% <span class="text-muted">so với hôm qua</span>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- User List -->
+    <div class="card border-0 shadow-sm">
+        <div class="card-header bg-white py-3 d-flex justify-content-between align-items-center border-bottom-0">
+             <h5 class="fw-bold mb-0">Danh sách Người dùng</h5>
+             <a asp-action="Create" class="btn btn-primary"><i class="fas fa-plus me-1"></i> Thêm Người dùng</a>
+        </div>
+        <div class="card-body">
+            <!-- Filter Bar -->
+            <form method="get" class="row g-3 mb-4">
+                <div class="col-md-4">
+                    <div class="input-group">
+                        <span class="input-group-text bg-light border-end-0"><i class="fas fa-search text-muted"></i></span>
+                        <input type="text" name="search" class="form-control border-start-0 bg-light" placeholder="Tìm kiếm theo tên, email..." value="@Model.TuKhoa">
+                    </div>
+                </div>
+                <div class="col-md-3">
+                    <select name="roleId" class="form-select bg-light">
+                        <option value="">Tất cả vai trò</option>
+                        @if (roles != null)
+                        {
+                            foreach (var role in roles)
+                            {
+                                <option value="@role.MaVaiTro" selected="@(Model.MaVaiTroFilter == role.MaVaiTro)">@role.TenVaiTro</option>
+                            }
+                        }
+                    </select>
+                </div>
+                <div class="col-md-3">
+                     <select name="status" class="form-select bg-light">
+                        <option value="">Trạng thái: Tất cả</option>
+                        <option value="active">Hoạt động</option>
+                        <option value="inactive">Ngưng hoạt động</option>
+                    </select>
+                </div>
+                <div class="col-md-2">
+                    <button type="submit" class="btn btn-outline-secondary w-100"><i class="fas fa-filter me-1"></i> Lọc</button>
+                </div>
+            </form>
+
+            <!-- Table -->
+            <div class="table-responsive">
+                <table class="table table-hover align-middle">
+                    <thead class="table-light">
+                        <tr>
+                            <th>ID</th>
+                            <th>Họ & Tên</th>
+                            <th>Email</th>
+                            <th>Vai trò</th>
+                            <th>Số lần sai</th>
+                            <th>Trạng thái</th>
+                            <th>Thao tác</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach (var user in Model.DanhSachNguoiDung)
+                        {
+                            <tr>
+                                <td>@user.MaNguoiDung</td>
+                                <td>
+                                    <div class="fw-bold">@user.HoTen</div>
+                                    <small class="text-muted">@user.TenDangNhap</small>
+                                </td>
+                                <td>@user.Email</td>
+                                <td>
+                                    @if(user.VaiTro != null)
+                                    {
+                                        var badgeClass = "bg-secondary";
+                                        if (user.VaiTro.TenVaiTro.Contains("Quản lý")) badgeClass = "bg-primary";
+                                        else if (user.VaiTro.TenVaiTro.Contains("Nhân viên")) badgeClass = "bg-info";
+                                        else if (user.VaiTro.TenVaiTro.Contains("Kế toán")) badgeClass = "bg-success";
+                                        
+                                        <span class="badge @badgeClass">@user.VaiTro.TenVaiTro</span>
+                                    }
+                                </td>
+                                <td class="text-center">@user.SoLanSai</td>
+                                <td>
+                                    @if (user.TrangThaiHoatDong)
+                                    {
+                                        <span class="badge bg-success bg-opacity-10 text-success px-3 py-2 rounded-pill">Hoạt động</span>
+                                    }
+                                    else
+                                    {
+                                        <span class="badge bg-danger bg-opacity-10 text-danger px-3 py-2 rounded-pill">Đã khóa</span>
+                                    }
+                                </td>
+                                <td>
+                                    <a asp-action="Details" asp-route-id="@user.MaNguoiDung" class="btn btn-sm btn-link text-primary" title="Xem chi tiết"><i class="fas fa-eye"></i></a>
+                                    <a asp-action="Edit" asp-route-id="@user.MaNguoiDung" class="btn btn-sm btn-link text-info" title="Chỉnh sửa"><i class="fas fa-pen"></i></a>
+                                    <button class="btn btn-sm btn-link text-danger" title="Xóa"><i class="fas fa-trash"></i></button>
+                                </td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+            
+            @if(!Model.DanhSachNguoiDung.Any())
+            {
+                <div class="text-center py-5">
+                    <div class="text-muted">Không tìm thấy người dùng nào phù hợp.</div>
+                </div>
+            }
+
+        </div>
+        <div class="card-footer bg-white py-3">
+             <!-- Pagination Placeholder -->
+             <div class="d-flex justify-content-between align-items-center">
+                 <small class="text-muted">Hiển thị @Model.DanhSachNguoiDung.Count() kết quả</small>
+                 <nav>
+                      <ul class="pagination pagination-sm mb-0">
+                        <li class="page-item disabled"><a class="page-link" href="#">Trước</a></li>
+                        <li class="page-item active"><a class="page-link" href="#">1</a></li>
+                        <li class="page-item"><a class="page-link" href="#">2</a></li>
+                        <li class="page-item"><a class="page-link" href="#">Sau</a></li>
+                      </ul>
+                 </nav>
+             </div>
+        </div>
+    </div>
+</div>

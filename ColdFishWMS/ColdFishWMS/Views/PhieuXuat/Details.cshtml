@@ -1,0 +1,55 @@
+@model ColdFishWMS.Models.Entities.PhieuXuat
+@{
+    ViewData["Title"] = "Chi tiết phiếu xuất";
+}
+
+<h2>Chi tiết phiếu xuất</h2>
+
+<dl class="row">
+    <dt class="col-sm-3">Mã phiếu</dt>
+    <dd class="col-sm-9">@Model.MaPhieuXuat</dd>
+
+    <dt class="col-sm-3">Ngày xuất</dt>
+    <dd class="col-sm-9">@Model.NgayXuat.ToString("dd/MM/yyyy")</dd>
+
+    <dt class="col-sm-3">Khách hàng</dt>
+    <dd class="col-sm-9">@(Model.KhachHang?.TenKhachHang ?? "-")</dd>
+
+    <dt class="col-sm-3">Tổng tiền</dt>
+    <dd class="col-sm-9"><strong class="text-primary">@Model.TongTien.ToString("N0") VNĐ</strong></dd>
+</dl>
+
+<h4 class="mt-4">Chi tiết hàng hóa</h4>
+<table class="table table-bordered table-sm">
+    <thead class="table-light">
+        <tr>
+            <th>Sản phẩm</th>
+            <th>Lô hàng</th>
+            <th>Số lượng</th>
+            <th>Đơn giá</th>
+            <th>Thành tiền</th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var detail in Model.ChiTietPhieuXuats)
+        {
+            <tr>
+                <td>@(detail.SanPham?.TenSanPham ?? detail.MaSanPham)</td>
+                <td>@detail.MaLoHang</td>
+                <td class="text-end">@detail.SoLuong.ToString("N0")</td>
+                <td class="text-end">@detail.DonGia.ToString("N0")</td>
+                <td class="text-end fw-bold">@((detail.SoLuong * detail.DonGia).ToString("N0"))</td>
+            </tr>
+        }
+    </tbody>
+</table>
+
+<div class="mt-3">
+    <a asp-action="Index" class="btn btn-secondary">Quay lại</a>
+    <a asp-action="Print" asp-route-id="@Model.MaPhieuXuat" target="_blank" class="btn btn-primary"><i class="fas fa-print me-2"></i>In phiếu (PDF)</a>
+</div>
+
+
+
+
+

@@ -1,0 +1,68 @@
+@model ColdFishWMS.Models.Entities.KhachHang
+@{
+    ViewData["Title"] = "Cập nhật khách hàng";
+}
+
+<div class="container-fluid">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h2 class="fw-bold text-dark mb-0">Cập nhật khách hàng</h2>
+        <a asp-action="Index" class="btn btn-outline-secondary">
+            <i class="fas fa-arrow-left me-2"></i> Quay lại
+        </a>
+    </div>
+
+    <div class="row">
+        <div class="col-md-8">
+            <div class="card shadow-sm border-0">
+                <div class="card-body">
+                    <form asp-action="Edit">
+                        <input type="hidden" asp-for="MaKhachHang" />
+                        
+                        <div class="row mb-3">
+                            <div class="col-md-4">
+                                <label class="form-label fw-bold">Mã khách hàng</label>
+                                <input asp-for="MaKhachHang" class="form-control" disabled />
+                                <small class="text-muted">Không thể thay đổi mã KH</small>
+                            </div>
+                            <div class="col-md-8">
+                                <label class="form-label fw-bold">Tên khách hàng <span class="text-danger">*</span></label>
+                                <input asp-for="TenKhachHang" class="form-control" required />
+                                <span asp-validation-for="TenKhachHang" class="text-danger small"></span>
+                            </div>
+                        </div>
+
+                        <div class="row mb-3">
+                            <div class="col-md-6">
+                                <label class="form-label fw-bold">Số điện thoại</label>
+                                <input asp-for="SoDienThoai" class="form-control" />
+                                <span asp-validation-for="SoDienThoai" class="text-danger small"></span>
+                            </div>
+                            <div class="col-md-6">
+                                <label class="form-label fw-bold">Email</label>
+                                <input asp-for="Email" class="form-control" type="email" />
+                                <span asp-validation-for="Email" class="text-danger small"></span>
+                            </div>
+                        </div>
+
+                        <div class="mb-3">
+                            <label class="form-label fw-bold">Địa chỉ</label>
+                            <textarea asp-for="DiaChi" class="form-control" rows="2"></textarea>
+                            <span asp-validation-for="DiaChi" class="text-danger small"></span>
+                        </div>
+
+                        <div class="mb-3">
+                            <div class="form-check form-switch">
+                                <input class="form-check-input" type="checkbox" asp-for="TrangThaiHoatDong">
+                                <label class="form-check-label" asp-for="TrangThaiHoatDong">Đang hoạt động</label>
+                            </div>
+                        </div>
+
+                        <div class="d-flex justify-content-end">
+                            <button type="submit" class="btn btn-primary px-4">Cập nhật</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

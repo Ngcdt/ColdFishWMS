@@ -1,0 +1,116 @@
+@model IEnumerable<ColdFishWMS.Models.Entities.NhatKyHeThong>
+@{
+    ViewData["Title"] = "Nhật ký hệ thống";
+}
+
+<div class="container-fluid">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <div>
+             <nav aria-label="breadcrumb">
+                <ol class="breadcrumb mb-1 small bg-transparent p-0">
+                    <li class="breadcrumb-item"><a asp-controller="Dashboard" asp-action="Index" class="text-decoration-none"><i class="fas fa-home"></i></a></li>
+                    <li class="breadcrumb-item active" aria-current="page">Quản trị hệ thống</li>
+                </ol>
+            </nav>
+            <h2 class="fw-bold text-dark mb-0">Nhật ký hệ thống</h2>
+            <p class="text-muted small mb-0">Theo dõi hoạt động của người dùng</p>
+        </div>
+    </div>
+
+    <div class="card shadow-sm border-0">
+        <div class="card-body">
+            <!-- Search -->
+            <form method="get" class="row g-2 mb-3">
+                 <div class="col-md-4">
+                     <div class="input-group">
+                         <span class="input-group-text bg-light border-end-0"><i class="fas fa-search text-muted"></i></span>
+                         <input type="text" name="search" class="form-control border-start-0 bg-light" placeholder="Tìm nội dung / user..." value="@ViewBag.CurrentSearch">
+                     </div>
+                 </div>
+                 <div class="col-md-auto">
+                     <button type="submit" class="btn btn-primary px-3">Tìm kiếm</button>
+                     <a href="@Url.Action("Index")" class="btn btn-light border px-3">Đặt lại</a>
+                 </div>
+            </form>
+
+            <div class="table-responsive">
+                <table class="table table-hover align-middle">
+                    <thead class="table-light">
+                        <tr>
+                            <th>Thời gian</th>
+                            <th>Người dùng</th>
+                            <th>Hành động</th>
+                            <th>Nội dung</th>
+                            <th>Đối tượng</th>
+                            <th>IP</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @if (Model != null && Model.Any())
+                        {
+                            foreach (var log in Model)
+                            {
+                                <tr>
+                                    <td class="text-nowrap small text-muted">@log.NgayTao.ToString("dd/MM/yyyy HH:mm:ss")</td>
+                                    <td>
+                                        @if(log.NguoiDung != null) {
+                                            <span class="fw-bold text-dark">@log.NguoiDung.TenDangNhap</span>
+                                        } else {
+                                            <span class="text-muted fst-italic">System/Guest</span>
+                                        }
+                                    </td>
+                                    <td>
+                                        @if(log.HanhDong == "Login") { <span class="badge bg-success bg-opacity-10 text-success">Login</span> }
+                                        else if (log.HanhDong == "Logout") { <span class="badge bg-secondary bg-opacity-10 text-secondary">Logout</span> }
+                                        else if (log.HanhDong == "Create") { <span class="badge bg-primary bg-opacity-10 text-primary">Create</span> }
+                                        else if (log.HanhDong == "Delete") { <span class="badge bg-danger bg-opacity-10 text-danger">Delete</span> }
+                                        else { <span class="badge bg-light text-dark border">@log.HanhDong</span> }
+                                    </td>
+                                    <td>@log.NoiDung</td>
+                                    <td>
+                                        @if (!string.IsNullOrEmpty(log.LoaiDoiTuong))
+                                        {
+                                            <small class="text-muted d-block">Type: @log.LoaiDoiTuong</small>
+                                            <small class="text-muted d-block">ID: @log.MaDoiTuong</small>
+                                        }
+                                    </td>
+                                    <td class="small text-muted font-monospace">@log.IPAddress</td>
+                                </tr>
+                            }
+                        }
+                        else
+                        {
+                            <tr>
+                                <td colspan="6" class="text-center py-5 text-muted">Không có dữ liệu nhật ký</td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+            
+            <!-- Pagination (Simple) -->
+            <div class="d-flex justify-content-between align-items-center pt-3 border-top">
+                <span class="text-muted small">Trang @ViewBag.CurrentPage</span>
+                <div>
+                    @if (ViewBag.HasPreviousPage == true)
+                    {
+                        <a href="@Url.Action("Index", new { page = ViewBag.CurrentPage - 1, search = ViewBag.CurrentSearch })" class="btn btn-sm btn-outline-secondary me-1">Trước</a>
+                    }
+                    else
+                    {
+                         <button class="btn btn-sm btn-outline-secondary me-1" disabled>Trước</button>
+                    }
+                    
+                    @if (ViewBag.HasNextPage == true)
+                    {
+                        <a href="@Url.Action("Index", new { page = ViewBag.CurrentPage + 1, search = ViewBag.CurrentSearch })" class="btn btn-sm btn-outline-secondary">Sau</a>
+                    }
+                     else
+                    {
+                         <button class="btn btn-sm btn-outline-secondary" disabled>Sau</button>
+                    }
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

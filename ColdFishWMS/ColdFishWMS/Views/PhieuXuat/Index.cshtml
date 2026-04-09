@@ -1,0 +1,40 @@
+@model IEnumerable<ColdFishWMS.Models.Entities.PhieuXuat>
+@{
+    ViewData["Title"] = "Phiếu xuất";
+}
+
+<div class="d-flex justify-content-between align-items-center mb-3">
+    <h2>Phiếu xuất</h2>
+    <a class="btn btn-primary" asp-action="Create">Thêm mới</a>
+</div>
+
+<table class="table table-striped">
+    <thead>
+        <tr>
+            <th>Mã phiếu</th>
+            <th>Ngày xuất</th>
+            <th>Khách hàng</th>
+            <th>Tổng tiền</th>
+            <th></th>
+        </tr>
+    </thead>
+    <tbody>
+    @foreach (var item in Model)
+    {
+        <tr>
+            <td>@item.MaPhieuXuat</td>
+            <td>@item.NgayXuat.ToString("dd/MM/yyyy")</td>
+            <td>@(item.KhachHang?.TenKhachHang ?? "-")</td>
+            <td>@item.TongTien.ToString("N0") VNĐ</td>
+            <td class="text-end">
+                <a asp-action="Details" asp-route-id="@item.MaPhieuXuat" class="btn btn-sm btn-outline-secondary">Xem</a>
+            </td>
+        </tr>
+    }
+    </tbody>
+</table>
+
+
+
+
+
